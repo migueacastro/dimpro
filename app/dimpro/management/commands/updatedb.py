@@ -1,6 +1,5 @@
 import os
 from alegra.client import Client
-import pandas as pd
 
 from django.db.utils import IntegrityError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
