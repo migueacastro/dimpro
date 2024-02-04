@@ -1,7 +1,8 @@
 from typing import Any
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, timezone
 from django.db import models
-
+from django.core.validators import MaxValueValidator, MinValueValidator
+import datetime
 # Create your models here.
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -58,15 +59,34 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.name or self.email.split('@')[0]
     
 class Product(models.Model):
-    item = models.CharField(max_length=64)
-    details = models.CharField(max_length=128)
-    reference = models.CharField(max_length=64)
-    available_quantity = models.IntegerField(min=1)
-    availability = models.IntegerField(min=0, max=1)
+    item = models.CharField(max_length=64, unique=True)
+    details = models.CharField(max_length=128, null = True)
+    reference = models.CharField(max_length=64, unique=True, null = True)
+    available_quantity = models.IntegerField(validators = [
+        MinValueValidator(1)
+    ])
 
 class Image(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     url = models.CharField(max_length=256)
 
 class ItemQuantity(models.Model):
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(validators = [
+        MinValueValidator(0)
+    ])
+
+class AlegraUser(models.Model):
+    email = models.CharField(max_length=128)
+    token = models.CharField(max_length=256)
+
+class Order(models.Model):
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
+    user_email = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    quantity = models.IntegerField(validators = [
+        MinValueValidator(1)
+    ])
+    status = models.IntegerField(choices= [
+        ('preparado', 'Preparado'),
+        ('pendiente', 'Pendiente')
+    ])
+    date = models.DateTimeField(auto_now_add=True)
