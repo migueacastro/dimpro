@@ -7,11 +7,6 @@ from .forms import LoginForm, UserRegisterForm
 from .decorators import only_for
 # Create your views here.
 
-
-@only_for('user')
-def index(request):
-    return render(request, 'index.html')
-
 @only_for('anonymous')
 def login_user(request):
     if request.method == 'POST':
@@ -124,3 +119,15 @@ def start(request):
 @only_for('staff')
 def control(request):
     pass
+
+
+@only_for('user')
+def index(request):
+    return render(request, 'index.html')
+
+def logout_action(request):
+    logout(request)
+    return render(request, 'dimpro/start.html', {
+        'message':'Sesión Cerrada'
+    })
+                  
