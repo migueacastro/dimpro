@@ -3,7 +3,7 @@ from .models import User, Image, Product, ItemQuantity, AlegraUser, Order
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'email')
+    list_display = ('id', 'name', 'last_name', 'email')
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'reference', 'item')
 class ItemQuantityAdmin (admin.ModelAdmin):

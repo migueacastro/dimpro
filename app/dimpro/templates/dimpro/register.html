@@ -7,21 +7,36 @@
 {% block body %}
     <h2 class="mb-5 mt-2">Registrarse</h2>
     {% if message %}
-        <div class="mb-2">{{ message }}</div>
+        <div class="mb-2 text-danger">{{ message }}</div>
     {% endif %}
-    <form class="mb-4"action="{% url 'register' %}" method="post">
+    <form class="mt-2 mb-4 text-start"action="{% url 'dimpro:register' %}" method="post">
         {% csrf_token %}
-        <input required name="name" class="form-control mx-auto mb-3"type="text" placeholder="Nombre">
-        <input required name="email" class="form-control mx-auto mb-3"type="text" placeholder="Email">
-        <input required name="password" class="form-control mx-auto mb-4"type="password" placeholder="Contraseña">
-        <input required name="rpassword" class="form-control mx-auto mb-4"type="password" placeholder="Repetir Contraseña">
-        
+        <div class="row">
+            <div class='col-md-6'>
+                {{ form.name.label }}
+                {{ form.name }}
+            </div>
+            <div class='col-md-6'>
+                {{ form.last_name.label }}
+                {{ form.last_name }}
+            </div>
+            
+            
+        </div>
+        {{ form.email.label }}
+        {{ form.email }}
+        {{ form.password.label }}
+        {{ form.password }}
+        {{ form.rpassword.label }}
+        {{ form.rpassword }}
+
+
         <button type="submit" class="btn btn-primary btn-lg btn-block w-100 mb-2">Registrarse</button>
         
     </form>
     
-    <p>¿Ya estás registrado? <a href="{% url 'login_user' %}">Iniciar Sesión</a></p>
-    <a href="{% url 'start' %}">
+    <p>¿Ya estás registrado? <a href="{% url 'dimpro:login_user' %}">Iniciar Sesión</a></p>
+    <a href="{% url 'dimpro:start' %}">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
           </svg>
