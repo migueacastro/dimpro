@@ -1,0 +1,19 @@
+{% extends 'dimpro/auth_layout.html' %}
+
+{% block title %}
+    Dimpro
+{% endblock %}
+
+{% block body %}
+    
+
+    <img class="mx-auto w-50 mb-5 mt-2"src="https://www.dimproelect.com/wp-content/uploads/2020/01/cropped-Logo-marca-DIMPRO-2-300x88.png" alt="">
+    <h2 class="mt-2 mb-5">Usuario</h2>
+    <a href="{% url 'login_user' %}">
+        <button type="button" class="btn btn-primary btn-lg btn-block w-100 mb-3">Vendedor</button>
+    </a>
+    <a href="{% url 'login_staff' %}">
+        <button type="button" class="btn btn-secondary btn-lg btn-block w-100 mb-3">Dimpro</button>
+    </a>
+    
+{% endblock %}

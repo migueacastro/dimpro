@@ -31,10 +31,6 @@ class Command(BaseCommand):
                 dictu = client.list_items(start=(n * 10 * i), order="ASC")
                 items = items + dictu
             
-            self.stdout.write('"%s"' % itemquantity.quantity)
-            self.stdout.write('"%s"' % len(items))
-
-
             for row in items:
                 item = row['name']
                 details = row['description']

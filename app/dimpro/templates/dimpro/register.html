@@ -1,0 +1,30 @@
+{% extends 'dimpro/auth_layout.html' %}
+
+{% block title %}
+    Registarse
+{% endblock %}
+
+{% block body %}
+    <h2 class="mb-5 mt-2">Registrarse</h2>
+    {% if message %}
+        <div class="mb-2">{{ message }}</div>
+    {% endif %}
+    <form class="mb-4"action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        <input required name="name" class="form-control mx-auto mb-3"type="text" placeholder="Nombre">
+        <input required name="email" class="form-control mx-auto mb-3"type="text" placeholder="Email">
+        <input required name="password" class="form-control mx-auto mb-4"type="password" placeholder="Contraseña">
+        <input required name="rpassword" class="form-control mx-auto mb-4"type="password" placeholder="Repetir Contraseña">
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block w-100 mb-2">Registrarse</button>
+        
+    </form>
+    
+    <p>¿Ya estás registrado? <a href="{% url 'login_user' %}">Iniciar Sesión</a></p>
+    <a href="{% url 'start' %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+          </svg>
+        Volver a inicio
+    </a>
+{% endblock %}
