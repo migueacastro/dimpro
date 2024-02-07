@@ -1,0 +1,40 @@
+{% extends 'dimpro/staff_layout.html' %}
+
+{% block title %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block stitle %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">
+        <div class="col-md-8">
+            <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <p class="fs-5">Producto: {{ product.item }}</p>
+                    <p class="fs-5">Referencia: {{ product.reference }}</p>
+                    <p class="fs-5">Cantidad: {{ order.quantity }}</p>
+                    <p class="fs-5">Fecha: {{ order.date }}</p>
+
+                    <a class="text-decoration-none"href="{% url 'dimpro:staff_client_view' client.id %}"><p class="fs-5">Cliente:  {{ client.name }} {{ client.last_name }}</p><p class="fs-5">Email:  {{ client.email }}</p></a>
+                </div>
+                
+                    {% if order.status == 'pendiente' %}
+                
+                        <button type="submit" class="btn fs-5 btn-primary px-4">Listo</button>
+                
+                        
+                    {% else %}
+                        <button type="submit" class="btn fs-5 btn-primary px-4">Establecer pendiente</button>
+                        
+                    {% endif %}
+                
+                
+            </div>
+        </div>
+        
+        
+    </div>
+{% endblock %}

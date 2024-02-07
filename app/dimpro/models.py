@@ -32,6 +32,7 @@ class CustomUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
     
 class User(AbstractBaseUser, PermissionsMixin):
+    id = models.AutoField(primary_key=True)
     email = models.EmailField(blank=True, default='', unique=True)
     name = models.CharField(max_length=255, blank=True, default='')
     last_name = models.CharField(max_length=255, blank=True, default='')
@@ -59,12 +60,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.name or self.email.split('@')[0]
     
 class Product(models.Model):
-    item = models.CharField(max_length=64, unique=True)
+    item = models.CharField(max_length=64, unique=False)
+    id = models.AutoField(primary_key=True)
     details = models.CharField(max_length=128, null = True)
     reference = models.CharField(max_length=64, unique=True, null = True)
     available_quantity = models.IntegerField(validators = [
         MinValueValidator(1)
     ])
+    def __str__(self):
+        return str(self.id)
 
 class Image(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -80,13 +84,16 @@ class AlegraUser(models.Model):
     token = models.CharField(max_length=256)
 
 class Order(models.Model):
+    id = models.AutoField(primary_key=True)
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
     user_email = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     quantity = models.IntegerField(validators = [
         MinValueValidator(1)
     ])
-    status = models.IntegerField(choices= [
+    status = models.CharField(max_length=16,choices= [
         ('preparado', 'Preparado'),
         ('pendiente', 'Pendiente')
     ])
     date = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return str(self.id)

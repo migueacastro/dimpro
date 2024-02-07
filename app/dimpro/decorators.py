@@ -15,7 +15,7 @@ def only_for(role):
                 elif request.user.is_staff:
                     return redirect(reverse('dimpro:control'))
                 elif not request.user.is_authenticated:
-                    return redirect('dimpro:login_user')
+                    return redirect('dimpro:start')
                 else:
                     return view_func(request, *args, **kwargs)
             elif role == 'staff':
@@ -24,7 +24,7 @@ def only_for(role):
                 elif not request.user.is_staff and request.user.is_authenticated:
                     return redirect(reverse('dimpro:index'))
                 elif not request.user.is_authenticated:
-                    return redirect(reverse('dimpro:login_staff'))
+                    return redirect(reverse('dimpro:start'))
                 else:
                     return view_func(request, *args, **kwargs)
             elif role == 'anonymous':

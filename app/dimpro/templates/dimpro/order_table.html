@@ -1,0 +1,50 @@
+
+<table class="table bg-white rounded shadow-sm table-hover">
+    <thead>
+        <tr>
+            <th scope="col" width="50">ID</th>
+            <th scope="col">Producto</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Vendedor</th>
+            <th scope="col">Estatus</th>
+            <th scope="col">Fecha</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in order_table %}
+        <tr class="clickable-row" data-href="{% url 'dimpro:staff_order_view' order.order_id %}">
+        
+            <th scope="row">{{ order.order_id }}</th>
+            <td>{{ order.product_name }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.user_name }}</td>
+            <td>
+                {% if order.status == 'Preparado'%}
+                <a class="text-decoration-none">
+                    <p class="grow second-text text-center secondary-bg rounded">
+                        {{ order.status }}
+                    </p>
+                </a>
+                {% else %}
+                <a class="text-decoration-none">
+                    <p class="grow second-text text-center red-bg rounded">
+                        {{ order.status }}
+                    </p>
+                </a>
+                {% endif %}
+            </td>
+            <td>{{ order.date }}</td>
+            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location.href = $(this).data("href");
+        });
+    });
+</script>

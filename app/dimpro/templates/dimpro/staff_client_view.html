@@ -1,0 +1,44 @@
+{% extends 'dimpro/staff_layout.html' %}
+
+{% block title %}
+    Cliente {{ client.name }} {{ client.last_name }}
+{% endblock %}
+
+{% block stitle %}
+    {{ client.name }} {{ client.last_name }}
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">
+        <div class="col-md-6">
+            <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <p class="fs-5">Nombre: {{ client.name }} {{ client.last_name }}</p>
+                    <p class="fs-5">Email: {{ client.email }}</p>
+                </div>
+                <i class="fas fa-user fs-1 primary-text p-3"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <p class="fs-5">Se unió en {{ client.date_joined }}</p>
+                    <p class="fs-5">Último inicio de sesión en {{ client.last_login }}</p>           
+                </div>
+                <i class="fas fa-flag fs-1 primary-text p-3"></i>
+            </div>
+            
+        </div>
+
+        <div class="row my-5">
+            <h3 class="fs-4 mb-3 primary-text">Pedidos de este cliente: {{ number_of_orders }}</h3>
+            <div class="col mx-auto">
+                {% include 'dimpro/client_orders_table.html' %}
+            </div>
+        </div>
+    </div>
+
+    
+
+{% endblock %}

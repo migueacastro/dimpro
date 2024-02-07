@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
-from .models import User
+from .models import User, Order, Product
 from .forms import LoginForm, UserRegisterForm
 from .decorators import only_for
+from .tables import order_table, client_table, client_orders_table
 # Create your views here.
 
 @only_for('anonymous')
@@ -37,10 +39,16 @@ def login_staff(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=email, password=password)
-            if user is not None and user.is_staff and not user.is_superuser:
+            try:
+                user = User.objects.get(email=email, password=password)
+            except User.DoesNotExist:
+                return render(request, 'dimpro/login_staff.html', {
+                    'message': 'Email o contraseña no valido.', 'form':form
+                })
+           
+            if (user.is_staff and not user.is_superuser):
                 login(request, user)
-                return HttpResponseRedirect(reverse('control'))
+                return HttpResponseRedirect(reverse('dimpro:control'))
             else:
                 return render(request, 'dimpro/login_staff.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
@@ -118,7 +126,65 @@ def start(request):
 
 @only_for('staff')
 def control(request):
-    pass
+
+    user = request.user
+    
+    try:
+        list_of_orders = Order.objects.filter()
+        number_of_orders = list_of_orders.count()
+        number_of_sellers = User.objects.filter(is_staff=False, is_superuser=False).count()
+    except Order.DoesNotExist:
+        list_of_orders = []
+        number_of_orders = 0
+    except User.DoesNotExist:
+        number_of_sellers = 0
+    return render(request, 'dimpro/staff_dashboard.html', {
+        'user': user, 'orders':list_of_orders, 'n_orders': number_of_orders, 'n_sellers':number_of_sellers, 'order_table': order_table(10, 1)
+    })
+
+@only_for('staff')
+def staff_orders(request):
+    try:
+        list_of_orders = Order.objects.filter()
+        number_of_orders = list_of_orders.count()
+    except Order.DoesNotExist:
+        list_of_orders = []
+        number_of_orders = 0
+    return render(request, 'dimpro/staff_orders.html', {
+        'orders':list_of_orders, 'n_orders': number_of_orders, 'order_table': order_table()
+    })
+
+@only_for('staff')
+def staff_clients(request):
+    return render(request, 'dimpro/staff_clients.html', {
+        'client_table': client_table()
+    })
+
+@only_for('staff')
+def staff_client_view(request, id):
+    client = User.objects.get(id=id)
+    orders = Order.objects.filter(user_email=client.id).count()
+
+    return render(request, 'dimpro/staff_client_view.html', {
+        'client': client, 
+        'number_of_orders': orders,
+        'client_orders_table': client_orders_table(client.id) 
+    })
+
+@only_for('staff')
+def staff_order_view(request, id):
+    if request.method == "POST":
+        pass
+    order = Order.objects.get(id=id)
+    product = Product.objects.get(id=order.product_id.id)
+    client = User.objects.get(email=order.user_email)
+    return render(request, 'dimpro/staff_order_view.html', {
+        'client': client, 
+        'order': order,
+        'product': product
+    })
+
+
 
 
 @only_for('user')

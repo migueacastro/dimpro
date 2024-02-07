@@ -1,0 +1,60 @@
+{% extends 'dimpro/staff_layout.html' %}
+
+{% block title %}
+    Inicio
+{% endblock %}
+
+{% block stitle %}
+    Inicio
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">
+        <div class="col-md-4">
+            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <a href="{% url 'dimpro:staff_orders' %}" class="text-decoration-none primary-text">
+                        <h3 class="fs-2">{{ n_orders }}</h3>
+                        <p class="fs-5">Pedidos Pendientes</p></a>
+                    
+                </div>
+                <i class="fas fa-box fs-1 primary-text p-3"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
+                <div>
+                    <a href="{% url 'dimpro:staff_clients' %}" class="text-decoration-none primary-text">
+                        <h3 class="fs-2">{{ n_sellers }}</h3>
+                        <p class="fs-5">Clientes</p> </a>
+                   
+                    
+                </div>
+                <i class="fas fa-user-group fs-1 primary-text p-3"></i>
+            </div>
+            
+        </div>
+
+        <div class="col-md-4">
+            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
+                <div>
+                    <h3 class="fs-2">Empleado</h3>
+                    <p class="fs-5">{{ user.name }}</p>
+                </div>
+                <i class="fas fa-user fs-1 primary-text p-3"></i>
+            </div>
+            
+        </div>
+
+        <div class="row my-5">
+            <h3 class="fs-4 mb-3 primary-text">Pedidos Recientes</h3>
+            <div class="col mx-auto">
+                {% include 'dimpro/order_table.html' %}
+            </div>
+        </div>
+    </div>
+
+    
+
+{% endblock %}
