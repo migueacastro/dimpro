@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from .models import User, Order, Product
+from .models import User, Order, Product, Order_Product, Client
 from .forms import LoginForm, UserRegisterForm
 from .decorators import only_for
 from .tables import order_table, client_table, client_orders_table
@@ -139,7 +138,7 @@ def control(request):
     except User.DoesNotExist:
         number_of_sellers = 0
     return render(request, 'dimpro/staff_dashboard.html', {
-        'user': user, 'orders':list_of_orders, 'n_orders': number_of_orders, 'n_sellers':number_of_sellers, 'order_table': order_table(10, 1)
+        'user': user, 'orders':list_of_orders, 'n_orders': number_of_orders, 'n_sellers':number_of_sellers
     })
 
 @only_for('staff')
@@ -197,3 +196,19 @@ def logout_action(request):
         'message':'Sesión Cerrada'
     })
                   
+@only_for('staff')
+def list_orders(_request):
+    orderquery = Order.objects.all()
+    data = {'orders': []}
+    for order in orderquery:
+        order_dict = {
+            'id': order.id,
+            'user_email': f'{order.user_email.name} {order.user_email.last_name}',
+            'client_name': order.client_id.name,
+            'date': order.date.strftime('%d %B %Y %H:%M'),
+            'status': order.status.capitalize(),
+            'products': order.product_categories()
+            # include other fields here
+        }
+        data['orders'].append(order_dict)
+    return JsonResponse(data)

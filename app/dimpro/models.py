@@ -1,6 +1,8 @@
 from typing import Any
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, timezone
 from django.db import models
+from django.db.models import Count
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
 # Create your models here.
@@ -83,17 +85,37 @@ class AlegraUser(models.Model):
     email = models.CharField(max_length=128)
     token = models.CharField(max_length=256)
 
+    
+class Client(models.Model):
+    name = models.CharField(max_length=128)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return str(self.id)
+    
 class Order(models.Model):
-    id = models.AutoField(primary_key=True)
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
     user_email = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    quantity = models.IntegerField(validators = [
-        MinValueValidator(1)
-    ])
     status = models.CharField(max_length=16,choices= [
         ('preparado', 'Preparado'),
         ('pendiente', 'Pendiente')
     ])
+    client_id = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='orders')
     date = models.DateTimeField(auto_now_add=True)
+    def product_categories(self):
+        return Order_Product.objects.filter(order_id=self.id).count()
+    
+    def __str__(self):
+        return str(self.id)
+    
+
+
+
+
+class Order_Product(models.Model):
+    id = models.AutoField(primary_key=True)
+    order_id =  models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orders')
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
+    quantity = models.IntegerField(validators = [
+        MinValueValidator(1)
+    ])
     def __str__(self):
         return str(self.id)
