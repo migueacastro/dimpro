@@ -24,10 +24,10 @@ def login_user(request):
                     'message': 'Email o contraseña no valido.', 'form':form
                 })
         else:
-            return render(request, 'dimpro/login.html', {
+            return render(request, 'dimpro/public/login.html', {
                 'form': form
             })
-    return render(request, 'dimpro/login.html', {
+    return render(request, 'dimpro/public/login.html', {
         'form': LoginForm()
     })
 
@@ -41,7 +41,7 @@ def login_staff(request):
             try:
                 user = User.objects.get(email=email, password=password)
             except User.DoesNotExist:
-                return render(request, 'dimpro/login_staff.html', {
+                return render(request, 'dimpro/public/login_staff.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
                 })
            
@@ -49,14 +49,14 @@ def login_staff(request):
                 login(request, user)
                 return HttpResponseRedirect(reverse('dimpro:control'))
             else:
-                return render(request, 'dimpro/login_staff.html', {
+                return render(request, 'dimpro/public/login_staff.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
                 })
         else:
-            return render(request, 'dimpro/login_staff.html', {
+            return render(request, 'dimpro/public/login_staff.html', {
                 'form': form
             })
-    return render(request, 'dimpro/login_staff.html', {
+    return render(request, 'dimpro/public/login_staff.html', {
         'form':LoginForm()
     })
 
@@ -72,28 +72,28 @@ def register(request):
             rpassword = form.cleaned_data['rpassword']
 
             if password != rpassword:
-                return render(request, 'dimpro/register.html', {
+                return render(request, 'dimpro/public/register.html', {
                     'message': 'Las contraseñas no coinciden.', 'form':form
                 })
 
             if len(password) < 8:
-                return render(request, 'dimpro/register.html', {
+                return render(request, 'dimpro/public/register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
             
             if email is None or name is None or last_name is None:
-                return render(request, 'dimpro/register.html', {
+                return render(request, 'dimpro/public/register.html', {
                     'message': 'Debe rellenar los campos.', 'form':form
                 })
             
             elif not ('@gmail.com' in email or '@outlook.com' in email):
-                return render(request, 'dimpro/register.html', {
+                return render(request, 'dimpro/public/register.html', {
                     'message': 'Email no valido.', 'form':form
                 })
             else:
                 try:
                     User.objects.get(email=email)
-                    return render(request, 'dimpro/register.html', {
+                    return render(request, 'dimpro/public/register.html', {
                     'message': 'Usuario ya registrado.', 'form':form
                 })
                 
@@ -107,20 +107,20 @@ def register(request):
                 login(request, user)
                 return HttpResponseRedirect(reverse('index'))
             else:
-                return render(request, 'dimpro/register.html', {
+                return render(request, 'dimpro/public/register.html', {
                     'message': 'Usuario ya registrado.', 'form':form
                 })
         else:
-            return render(request, 'dimpro/register.html', {
+            return render(request, 'dimpro/public/register.html', {
                 'form': form
             })
-    return render(request, 'dimpro/register.html', {
+    return render(request, 'dimpro/public/register.html', {
         'form':UserRegisterForm()
     })
 
 @only_for('anonymous')
 def start(request):
-    return render(request, 'dimpro/start.html')
+    return render(request, 'dimpro/public/start.html')
 
 
 @only_for('staff')
@@ -137,7 +137,7 @@ def control(request):
         number_of_orders = 0
     except User.DoesNotExist:
         number_of_sellers = 0
-    return render(request, 'dimpro/staff_dashboard.html', {
+    return render(request, 'dimpro/staff/staff_dashboard.html', {
         'user': user, 'orders':list_of_orders, 'n_orders': number_of_orders, 'n_sellers':number_of_sellers
     })
 
@@ -149,25 +149,24 @@ def staff_orders(request):
     except Order.DoesNotExist:
         list_of_orders = []
         number_of_orders = 0
-    return render(request, 'dimpro/staff_orders.html', {
-        'orders':list_of_orders, 'n_orders': number_of_orders, 'order_table': order_table()
+    return render(request, 'dimpro/staff/staff_orders.html', {
+        'orders':list_of_orders, 'n_orders': number_of_orders
     })
 
 @only_for('staff')
 def staff_clients(request):
-    return render(request, 'dimpro/staff_clients.html', {
+    return render(request, 'dimpro/staff/staff_clients.html', {
         'client_table': client_table()
     })
 
 @only_for('staff')
 def staff_client_view(request, id):
-    client = User.objects.get(id=id)
-    orders = Order.objects.filter(user_email=client.id).count()
+    seller = User.objects.get(id=id)
+    orders = Order.objects.filter(user_email=seller.id).count()
 
-    return render(request, 'dimpro/staff_client_view.html', {
-        'client': client, 
-        'number_of_orders': orders,
-        'client_orders_table': client_orders_table(client.id) 
+    return render(request, 'dimpro/staff/staff_client_view.html', {
+        'seller': seller, 
+        'number_of_orders': orders
     })
 
 @only_for('staff')
@@ -175,12 +174,11 @@ def staff_order_view(request, id):
     if request.method == "POST":
         pass
     order = Order.objects.get(id=id)
-    product = Product.objects.get(id=order.product_id.id)
     client = User.objects.get(email=order.user_email)
-    return render(request, 'dimpro/staff_order_view.html', {
-        'client': client, 
+    return render(request, 'dimpro/staff/staff_order_view.html', {
+        'seller': client, 
         'order': order,
-        'product': product
+        'order_categories': order.product_categories()
     })
 
 
@@ -192,12 +190,28 @@ def index(request):
 
 def logout_action(request):
     logout(request)
-    return render(request, 'dimpro/start.html', {
+    return render(request, 'dimpro/public/start.html', {
         'message':'Sesión Cerrada'
     })
                   
 @only_for('staff')
-def list_orders(_request):
+def list_orders_start(_request):
+    orderquery = Order.objects.filter(status='pendiente')
+    data = {'orders': []}
+    for order in orderquery:
+        order_dict = {
+            'id': order.id,
+            'user_email': f'{order.user_email.name} {order.user_email.last_name}',
+            'client_name': order.client_id.name,
+            'date': order.date.strftime('%d %B %Y %H:%M'),
+            'status': order.status.capitalize(),
+            'products': order.product_categories()
+        }
+        data['orders'].append(order_dict)
+    return JsonResponse(data)
+
+@only_for('staff')
+def list_orders_all(_request):
     orderquery = Order.objects.all()
     data = {'orders': []}
     for order in orderquery:
@@ -208,7 +222,59 @@ def list_orders(_request):
             'date': order.date.strftime('%d %B %Y %H:%M'),
             'status': order.status.capitalize(),
             'products': order.product_categories()
-            # include other fields here
         }
         data['orders'].append(order_dict)
     return JsonResponse(data)
+
+@only_for('staff')
+def list_orders_user(_request, id):
+    orderquery = Order.objects.filter(user_email=id)
+    data = {'orders': []}
+    for order in orderquery:
+        order_dict = {
+            'id': order.id,
+            'user_email': f'{order.user_email.name} {order.user_email.last_name}',
+            'client_name': order.client_id.name,
+            'date': order.date.strftime('%d %B %Y %H:%M'),
+            'status': order.status.capitalize(),
+            'products': order.product_categories()
+        }
+        data['orders'].append(order_dict)
+    return JsonResponse(data)
+
+@only_for('staff')
+def list_sellers(_request):
+    sellerquery = User.objects.filter(is_staff=False, is_superuser=False)
+    data = {'sellers': []}
+    for user in sellerquery:
+        order_dict = {
+            'id': user.id,
+            'username': f'{user.name} {user.last_name}',
+            'date_joined': user.date_joined.strftime('%d %B %Y %H:%M'),
+            'last_login': user.last_login.strftime('%d %B %Y %H:%M'),
+            'email': user.email,
+            'orders': user.user_orders()
+        }
+        data['sellers'].append(order_dict)
+    return JsonResponse(data)
+
+@only_for('staff')
+def list_products_for_order(_request, id):
+    products = Order_Product.objects.filter(order_id=id)
+    data = {'products': []}
+    for product in products:
+        order_dict = {
+            'id': product.product_id.id,
+            'name': product.product_id.item,
+            'reference': product.product_id.reference,
+            'quantity': product.quantity,
+        }
+        data['products'].append(order_dict)
+    return JsonResponse(data)
+
+@only_for('staff')
+def add_order_popup(request, id):
+    if request.method == 'POST':
+        return
+    else:
+        return render(request, 'dimpro/staff/add_order.html')

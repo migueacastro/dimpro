@@ -61,6 +61,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.name or self.email.split('@')[0]
     
+    def user_orders(self):
+        return Order.objects.filter(user_email=self.id).count()
+    
 class Product(models.Model):
     item = models.CharField(max_length=64, unique=False)
     id = models.AutoField(primary_key=True)
@@ -93,12 +96,12 @@ class Client(models.Model):
         return str(self.id)
     
 class Order(models.Model):
-    user_email = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    user_email = models.ForeignKey(User, on_delete=models.PROTECT, related_name='orders')
     status = models.CharField(max_length=16,choices= [
         ('preparado', 'Preparado'),
         ('pendiente', 'Pendiente')
     ])
-    client_id = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='orders')
+    client_id = models.ForeignKey(Client, on_delete=models.PROTECT, related_name='orders')
     date = models.DateTimeField(auto_now_add=True)
     def product_categories(self):
         return Order_Product.objects.filter(order_id=self.id).count()
