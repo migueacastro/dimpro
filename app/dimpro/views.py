@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate, login, logout
 from .models import User, Order, Product, Order_Product, Client
 from .forms import LoginForm, UserRegisterForm
 from .decorators import only_for
-from .tables import order_table, client_table, client_orders_table
 # Create your views here.
 
 @only_for('anonymous')
@@ -155,9 +154,7 @@ def staff_orders(request):
 
 @only_for('staff')
 def staff_clients(request):
-    return render(request, 'dimpro/staff/staff_clients.html', {
-        'client_table': client_table()
-    })
+    return render(request, 'dimpro/staff/staff_clients.html')
 
 @only_for('staff')
 def staff_client_view(request, id):
@@ -268,13 +265,38 @@ def list_products_for_order(_request, id):
             'name': product.product_id.item,
             'reference': product.product_id.reference,
             'quantity': product.quantity,
+            'available-quantity': product.product_id.available_quantity
         }
         data['products'].append(order_dict)
     return JsonResponse(data)
 
 @only_for('staff')
-def add_order_popup(request, id):
+def edit_order(request, id):
     if request.method == 'POST':
         return
     else:
-        return render(request, 'dimpro/staff/add_order.html')
+        order = Order.objects.get(id=id)
+        products = Product.objects.all()
+        return render(request, 'dimpro/staff/staff_order_view_edit.html', {
+            'order':order,
+            'products': products
+        })
+    
+@only_for('staff')
+def list_products(_request):
+    products = Product.objects.all()
+    data = {'products': []}
+    for product in products:
+        if product.available_quantity <= 0:
+            continue
+        if product.reference == '':
+            continue
+        product_dict = {
+            'id': product.id,
+            'item': product.item,
+            'details': product.details,
+            'reference': product.reference,
+            'available_quantity': product.available_quantity
+        }
+        data['products'].append(product_dict)
+    return JsonResponse(data)

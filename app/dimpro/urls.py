@@ -19,5 +19,6 @@ urlpatterns = [
     path("list_sellers/", views.list_sellers, name="list-sellers"),
     path("list_orders/user/<int:id>", views.list_orders_user, name='list_orders_user'),
     path("list_products_order/order/<int:id>", views.list_products_for_order, name='list_products_for_order'),
-    path("staff/view/order/<int:id>/add", views.add_order_popup, name='add_order_popup')
+    path("list_products/", views.list_products, name="list_products"),
+    path("staff/view/order/edit/<int:id>", views.edit_order, name='edit_order'),
 ]
