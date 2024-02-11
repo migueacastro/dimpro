@@ -52,6 +52,7 @@ function editDataTable (dataTableModel) {
         dataTable = $('#datatable-orders').DataTable({
             "paging": false,
             "retrieve": true,
+            "searching": false,
             "language": {
                 "sProcessing":    "Procesando...",
                 "sLengthMenu":    "Mostrar _MENU_ registros",
@@ -243,57 +244,56 @@ var lastSelectedItem;
 function setInputValue(input, product_data) {
     inputId = input;
     var input = document.getElementById(inputId);
-    
+    var valor = input.value;
     var datalist = document.getElementById('product-selection');
+
+    var rows = document.getElementById('datatable-orders').rows;
+
+    var itemCounts = {};
+    console.log(rows.length);
+    for (var i = 0; i < rows.length -1; i++) {
+
+        var item = document.getElementById('item-' + i).value;
+
+        itemCounts[item] = (itemCounts[item] || 0) + 1;
+
+        if (valor === item && itemCounts[item] > 1) {
+            console.log('El producto ya existe en la tabla');
+            input.value = '';
+            input.placeholder = 'El producto ya existe';
+            return;  // Termina la ejecución de la función aquí
+        }
+    }
 
     var selectedItem = input.value;
     lastSelectedItem = selectedItem;
-
-    var newOptions = product_data.products.filter(item => item.item !== selectedItem);
-
-    while (datalist.firstChild) {
-        datalist.removeChild(datalist.firstChild);
-    }
-    
-    newOptions.forEach((item) => {
-        var option = document.createElement('option');
-        option.value = item.item;
-        datalist.appendChild(option);
-    });
-
-    input.value = selectedItem;
 }
+
+var lastSelectedItem = null;
 
 function verify() {
     var input = document.getElementById(inputId);
-    
     var valor = input.value;
+    var datalist = document.getElementById('product-selection');
+    var options = datalist.options;
+    var exists = false;
 
-
-    if (valor !== lastSelectedItem) {
-        var datalist = document.getElementById('product-selection');
-        var options = datalist.options;
-        var exists = false;
-        
-
-        for (var i = 0; i < options.length; i++) {
-            
-            if (valor == options[i].value) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
-            input.value = '';
-            input.placeholder = 'Producto no existe';
-            
+    for (var i = 0; i < options.length; i++) {
+        if (valor == options[i].value) {
+            exists = true;
+            break;
         }
     }
-    else {
-        lastSelectedItem = null;
+
+    if (!exists && valor !== '') {
+        input.value = '';
+        input.placeholder = '';
+    } else {
+        lastSelectedItem = valor;
     }
 }
+
+
 
 
 
@@ -318,5 +318,6 @@ async function changeValues (id, reference, aq, q, name) {
     document.getElementById(reference).innerText = v2;
     document.getElementById(aq).innerText = v3;
     document.getElementById(q).value = v4;
+    document.getElementById(q).max = v3;
 }
 
