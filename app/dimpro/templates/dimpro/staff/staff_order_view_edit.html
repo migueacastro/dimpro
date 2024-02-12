@@ -32,13 +32,14 @@
                                     <th>Referencia</th>
                                     <th>Cantidad</th>
                                     <th>Disponibilidad</th>
+                                    <th></th>
                                 </tr>
                             </thead>  
                             <tbody id="tableBody_orders"></tbody>
                         </table>
                     </div>
                     <div class="col-12 col-md-12 mt-4 text-end d-flex justify-content-center">
-                        <button type="button" id="add-product"class="mx-2 grow btn btn-primary"><i class="fa-solid fa-plus mx-1"></i>Añadir item</button>
+                        <button onclick="addRow();"type="button" id="add-product"class="mx-2 grow btn btn-primary"><i class="fa-solid fa-plus mx-1"></i>Añadir item</button>
                         <button type="submit" class="mx-2 grow btn btn-primary"><i class="fa-solid fa-pen-to-square mx-1"></i>Guardar</button>
                         {% include 'dimpro/staff/add_order.html' %}
                     </div>

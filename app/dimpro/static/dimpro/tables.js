@@ -220,11 +220,12 @@ const listOrderProductsEdit=async()=>{
                 <td id="id-${index}">${id}</td>
                 <td>
                     <input id="item-${index}" required class="form-control" 
-                    onchange="setInputValue('item-${index}', product_data); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}'); verify();"
+                    onchange="setInputValue('item-${index}', product_data); duplicateRow(${index}); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}'); verify();"
                     type="text" list="product-selection" value="${product.name}"</input></td>
                 <td id="reference-${index}">${reference}</td>
                 <td><input id="item-q-${index}" required  type="number" class="form-control" min="1" max="${product['available-quantity']}" value="${product.quantity}"></input></td>
                 <td id="aq-${index}">${product['available-quantity']}</td>
+                <td><i class="fa-solid fa-xmark grow" onclick="deleteRow(${index});"></i></td>
             </tr>
             `;
            
@@ -321,3 +322,116 @@ async function changeValues (id, reference, aq, q, name) {
     document.getElementById(q).max = v3;
 }
 
+function addRow() {
+    let index = document.getElementById('tableBody_orders').rows.length;
+    let table = document.getElementById('tableBody_orders');
+
+    let row = document.createElement('tr');
+    row.id = index;
+
+    let cell1 = document.createElement('td');
+    cell1.id = `id-${index}`;
+    let cell2 = document.createElement('td');
+    let cell3 = document.createElement('td');
+    cell3.id = `reference-${index}`;
+    let cell4 = document.createElement('td');
+    let cell5 = document.createElement('td');
+    cell5.id = `aq-${index}`;
+    let input1 = document.createElement('input');
+    let cell6 = document.createElement('td');
+    input1.id = 'item-' + index;
+    input1.required = true;
+    input1.className = 'form-control';
+    input1.type = 'text';
+    input1.setAttribute('list', 'product-selection');
+    input1.value = '';
+    input1.onchange = function() {
+        setInputValue('item-' + index, product_data);
+        duplicateRow(index);  // Pasar 'index' como parámetro
+        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
+        verify(index);  // Pasar 'index' como parámetro
+    };
+    
+
+    let input2 = document.createElement('input');
+    input2.id = 'item-q-' + index;
+    input2.required = true;
+    input2.type = 'number';
+    input2.className = 'form-control';
+    input2.min = '1';
+    input2.value = '';
+
+    let icon = document.createElement('i');
+    icon.className = 'fa-solid fa-xmark';
+    icon.onclick = function() {
+        deleteRow(index);
+    };
+
+    cell2.appendChild(input1);
+    cell4.appendChild(input2);
+    cell6.appendChild(icon);
+
+    row.appendChild(cell1);
+    row.appendChild(cell2);
+    row.appendChild(cell3);
+    row.appendChild(cell4);
+    row.appendChild(cell5);
+    row.appendChild(cell6);
+    table.appendChild(row);
+}
+
+
+function duplicateRow(id) {
+    let table = document.getElementById('tableBody_orders');
+    let index = table.rows.length;
+    let originalRow = document.getElementById(id);
+
+    // Clona la fila original
+    let clonedRow = originalRow.cloneNode(true);
+
+    clonedRow.id = index;
+
+    clonedRow.querySelector('#item-' + id).id = 'item-' + index;
+    
+
+    clonedRow.querySelector('#reference-' + id).id = 'reference-' + index;
+
+    clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
+
+    clonedRow.querySelector('#aq-' + id).id = 'aq-' + index;
+
+    input = clonedRow.querySelector('#item-q-' + index);
+    input.min = '0';
+    input.max = '0';
+    input.setAttribute('value', '0');
+    
+    clonedRow.style.display = 'none'; // Aquí está la corrección
+    originalRow.parentNode.appendChild(clonedRow);
+
+}
+
+function deleteRow(id) {
+    let table = document.getElementById('tableBody_orders');
+    let index = table.rows.length;
+
+    let originalRow = document.getElementById(id);
+
+    // Clona la fila original
+    let clonedRow = originalRow.cloneNode(true);
+
+    clonedRow.id = index + 1;
+
+    clonedRow.querySelector('#item-' + id).id = 'item-' + index;
+
+    clonedRow.querySelector('#reference-' + id).id = 'reference-' + index;
+
+    clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
+
+    clonedRow.querySelector('#aq-' + id).id = 'aq-' + index;
+
+    clonedRow.style.display = 'none';
+
+    originalRow.parentNode.appendChild(clonedRow);
+    document.getElementById('item-q-' + index).setAttribute('value', '0');
+    originalRow.parentNode.removeChild(originalRow);
+}
