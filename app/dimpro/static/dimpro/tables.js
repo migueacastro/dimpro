@@ -220,7 +220,7 @@ const listOrderProductsEdit=async()=>{
                 <td id="id-${index}">${id}</td>
                 <td>
                     <input id="item-${index}" required class="form-control" 
-                    onchange="setInputValue('item-${index}', product_data); duplicateRow(${index}); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}'); verify();"
+                    onchange="setInputValue('item-${index}', product_data); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}'); verify();"
                     type="text" list="product-selection" value="${product.name}"</input></td>
                 <td id="reference-${index}">${reference}</td>
                 <td><input id="item-q-${index}" required  type="number" class="form-control" min="1" max="${product['available-quantity']}" value="${product.quantity}"></input></td>
@@ -254,6 +254,12 @@ function setInputValue(input, product_data) {
     console.log(rows.length);
     for (var i = 0; i < rows.length -1; i++) {
 
+        var row = document.getElementById(i);
+
+        if (row.style.display === 'none') {
+            continue;
+        }
+
         var item = document.getElementById('item-' + i).value;
 
         itemCounts[item] = (itemCounts[item] || 0) + 1;
@@ -264,6 +270,9 @@ function setInputValue(input, product_data) {
             input.placeholder = 'El producto ya existe';
             return;  // Termina la ejecución de la función aquí
         }
+        if (item !== null && item !== '') {
+            duplicateRow(i);
+        }    
     }
 
     var selectedItem = input.value;
@@ -347,7 +356,6 @@ function addRow() {
     input1.value = '';
     input1.onchange = function() {
         setInputValue('item-' + index, product_data);
-        duplicateRow(index);  // Pasar 'index' como parámetro
         changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
         verify(index);  // Pasar 'index' como parámetro
     };
@@ -392,8 +400,11 @@ function duplicateRow(id) {
     clonedRow.id = index;
 
     clonedRow.querySelector('#item-' + id).id = 'item-' + index;
-    
-
+    clonedRow.querySelector('#item-' + index).onchange = function() {
+        setInputValue('item-' + index, product_data);
+        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
+        verify();
+    };
     clonedRow.querySelector('#reference-' + id).id = 'reference-' + index;
 
     clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
@@ -419,19 +430,19 @@ function deleteRow(id) {
     // Clona la fila original
     let clonedRow = originalRow.cloneNode(true);
 
-    clonedRow.id = index + 1;
+    clonedRow.setAttribute('id', originalRow.id);
 
-    clonedRow.querySelector('#item-' + id).id = 'item-' + index;
+    clonedRow.querySelector('#item-' + originalRow.id).setAttribute('id', 'item-' + originalRow.id);
 
-    clonedRow.querySelector('#reference-' + id).id = 'reference-' + index;
+    clonedRow.querySelector('#reference-' + originalRow.id).setAttribute('id', 'reference-' + originalRow.id);
 
-    clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
+    clonedRow.querySelector('#item-q-' + originalRow.id).setAttribute('id', 'item-q-' + originalRow.id);
 
-    clonedRow.querySelector('#aq-' + id).id = 'aq-' + index;
+    clonedRow.querySelector('#aq-' + originalRow.id).setAttribute('id', 'aq-' + originalRow.id);
 
     clonedRow.style.display = 'none';
 
     originalRow.parentNode.appendChild(clonedRow);
-    document.getElementById('item-q-' + index).setAttribute('value', '0');
+    document.getElementById('item-q-' + originalRow.id).setAttribute('value', '0');
     originalRow.parentNode.removeChild(originalRow);
 }

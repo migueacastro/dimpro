@@ -45,7 +45,9 @@
                     </div>
                     <datalist id="product-selection">
                         {% for product in products %}
-                        <option value="{{product.item }}"></option>
+                            {% if product.reference and product.id and product.available_quantity %}
+                                <option value="{{product.item }}"></option>
+                            {% endif %}
                         {% endfor %}
                     </datalist>
                 </form>
