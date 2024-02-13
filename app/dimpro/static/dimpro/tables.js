@@ -415,7 +415,7 @@ function duplicateRow(id) {
     input.min = '0';
     input.max = '0';
     input.setAttribute('value', '0');
-    
+    input.setAttribute('required', 'false');
     clonedRow.style.display = 'none'; // Aquí está la corrección
     originalRow.parentNode.appendChild(clonedRow);
 
@@ -426,23 +426,56 @@ function deleteRow(id) {
     let index = table.rows.length;
 
     let originalRow = document.getElementById(id);
-
-    // Clona la fila original
-    let clonedRow = originalRow.cloneNode(true);
-
-    clonedRow.setAttribute('id', originalRow.id);
-
-    clonedRow.querySelector('#item-' + originalRow.id).setAttribute('id', 'item-' + originalRow.id);
-
-    clonedRow.querySelector('#reference-' + originalRow.id).setAttribute('id', 'reference-' + originalRow.id);
-
-    clonedRow.querySelector('#item-q-' + originalRow.id).setAttribute('id', 'item-q-' + originalRow.id);
-
-    clonedRow.querySelector('#aq-' + originalRow.id).setAttribute('id', 'aq-' + originalRow.id);
-
-    clonedRow.style.display = 'none';
-
-    originalRow.parentNode.appendChild(clonedRow);
+    originalRow.querySelector('#item-' + originalRow.id).setAttribute('required', 'false');
+    document.getElementById('item-q-' + originalRow.id).setAttribute('min', '0');
     document.getElementById('item-q-' + originalRow.id).setAttribute('value', '0');
-    originalRow.parentNode.removeChild(originalRow);
+    document.getElementById('item-q-' + originalRow.id).setAttribute('required', 'false');
+    originalRow.style.display = 'none';
 }
+
+function postData() {
+    let table = document.getElementById('tableBody_orders');
+    let data = [];
+
+
+    let url = window.location.href;
+    let parts = url.split('/');
+    let lastNumber = parts[parts.length - 1];
+
+    for (let i =  0; i < table.rows.length; i++) {
+        let row = table.rows[i];
+        if (row.style.display == 'none') {
+            continue;
+        }
+
+        let item = document.getElementById('item-' + i).value;
+
+        let reference = document.getElementById('reference-' + i).value;
+
+        let quantity = document.getElementById('item-q-'+ i).value;
+
+        data.push({
+            item: item,
+            reference: reference,
+            quantity: quantity
+        });
+    }
+
+    fetch(`/app/staff/view/order/edit/${lastNumber}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.getElementById('csrf').innerText
+        },
+
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(('Success:'), data);
+    })
+    .catch((error) => {
+        console.log('Error:', error);
+    });
+}
+

@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import User, Order, Product, Order_Product, Client
 from .forms import LoginForm, UserRegisterForm
 from .decorators import only_for
+import json
 # Create your views here.
 
 @only_for('anonymous')
@@ -273,7 +274,11 @@ def list_products_for_order(_request, id):
 @only_for('staff')
 def edit_order(request, id):
     if request.method == 'POST':
-        return
+        data = json.loads(request.body)
+    #    for row in data:
+      #      if row['quantity'] 
+
+        return HttpResponseRedirect(reverse('dimpro:control'))
     else:
         order = Order.objects.get(id=id)
         products = Product.objects.all()
