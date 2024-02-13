@@ -274,11 +274,26 @@ def list_products_for_order(_request, id):
 @only_for('staff')
 def edit_order(request, id):
     if request.method == 'POST':
-        data = json.loads(request.body)
-    #    for row in data:
-      #      if row['quantity'] 
-
-        return HttpResponseRedirect(reverse('dimpro:control'))
+            data = json.loads(request.body)
+            for row in data:
+                quantity = int(row['quantity'])
+                try: 
+                    product = Product.objects.get(item=row['item'])
+                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                    if quantity == 0:
+                        object.delete()
+                    else:
+                        object.quantity = int(quantity)
+                        object.save()
+                except Order_Product.DoesNotExist:
+                    if quantity == 0:
+                        continue
+                    else:
+                        order = Order.objects.get(id=id)
+                        product = Product.objects.get(item=row['item'])
+                        Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+            return HttpResponseRedirect(reverse('dimpro:control'))
+        
     else:
         order = Order.objects.get(id=id)
         products = Product.objects.all()

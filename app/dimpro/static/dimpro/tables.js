@@ -270,11 +270,11 @@ function setInputValue(input, product_data) {
             input.placeholder = 'El producto ya existe';
             return;  // Termina la ejecución de la función aquí
         }
-        if (item !== null && item !== '') {
+        if (item !== null && item !== '' && i == inputId.charAt(inputId.length -1)) {
             duplicateRow(i);
         }    
-    }
 
+    }
     var selectedItem = input.value;
     lastSelectedItem = selectedItem;
 }
@@ -399,9 +399,10 @@ function duplicateRow(id) {
 
     clonedRow.id = index;
 
+    clonedRow.querySelector('#id-' + id).id = 'id-' + index;
     clonedRow.querySelector('#item-' + id).id = 'item-' + index;
     clonedRow.querySelector('#item-' + index).onchange = function() {
-        setInputValue('item-' + index, product_data);
+        setInputValue('item-' + id, product_data);
         changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
         verify();
     };
@@ -410,13 +411,14 @@ function duplicateRow(id) {
     clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
 
     clonedRow.querySelector('#aq-' + id).id = 'aq-' + index;
-
+    input2 = clonedRow.querySelector('#item-' + index);
+    input2.removeAttribute('required');
     input = clonedRow.querySelector('#item-q-' + index);
-    input.min = '0';
-    input.max = '0';
+    input.setAttribute('min', '0');
+    input.setAttribute('max', '0')
     input.setAttribute('value', '0');
-    input.setAttribute('required', 'false');
-    clonedRow.style.display = 'none'; // Aquí está la corrección
+    input.removeAttribute('required');
+    clonedRow.style.display = 'none'; 
     originalRow.parentNode.appendChild(clonedRow);
 
 }
@@ -426,10 +428,10 @@ function deleteRow(id) {
     let index = table.rows.length;
 
     let originalRow = document.getElementById(id);
-    originalRow.querySelector('#item-' + originalRow.id).setAttribute('required', 'false');
+    originalRow.querySelector('#item-' + originalRow.id).removeAttribute('required');
     document.getElementById('item-q-' + originalRow.id).setAttribute('min', '0');
     document.getElementById('item-q-' + originalRow.id).setAttribute('value', '0');
-    document.getElementById('item-q-' + originalRow.id).setAttribute('required', 'false');
+    document.getElementById('item-q-' + originalRow.id).removeAttribute('required');
     originalRow.style.display = 'none';
 }
 
@@ -444,23 +446,35 @@ function postData() {
 
     for (let i =  0; i < table.rows.length; i++) {
         let row = table.rows[i];
+        let rowIndex = row.id;
+
+        let item = document.getElementById('item-' + rowIndex).value;
+
+        let reference = document.getElementById('reference-' + rowIndex).value;
+
+        let quantity;
         if (row.style.display == 'none') {
-            continue;
+            quantity = 0;
         }
-
-        let item = document.getElementById('item-' + i).value;
-
-        let reference = document.getElementById('reference-' + i).value;
-
-        let quantity = document.getElementById('item-q-'+ i).value;
-
-        data.push({
-            item: item,
-            reference: reference,
-            quantity: quantity
-        });
+        else {
+            quantity = document.getElementById('item-q-'+ rowIndex).value;
+        }
+        
+        let exists = data.some(function(el) {
+            return el.item === item;
+        })
+    
+        if (!exists || quantity > 0) {
+            data.push({
+                item: item,
+                reference: reference,
+                quantity: quantity
+            });
+        }
+        
     }
 
+    
     fetch(`/app/staff/view/order/edit/${lastNumber}`, {
         method: 'POST',
         headers: {
@@ -470,7 +484,10 @@ function postData() {
 
         body: JSON.stringify(data),
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
     .then(data => {
         console.log(('Success:'), data);
     })
