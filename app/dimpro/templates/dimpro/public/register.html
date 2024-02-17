@@ -9,6 +9,13 @@
     {% if message %}
         <div class="mb-2 text-danger">{{ message }}</div>
     {% endif %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="mb-2 text-danger">{{ error|escape }}</div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
     <form class="mt-2 mb-4 text-start"action="{% url 'dimpro:register' %}" method="post">
         {% csrf_token %}
         <div class="row">
@@ -23,6 +30,8 @@
             
             
         </div>
+        {{ form.phonenumber.label }}
+        {{ form.phonenumber }}
         {{ form.email.label }}
         {{ form.email }}
         {{ form.password.label }}
@@ -31,7 +40,7 @@
         {{ form.rpassword }}
 
 
-        <button type="submit" class="btn btn-primary btn-lg btn-block w-100 mb-2">Registrarse</button>
+        <button type="submit" class="grow btn btn-primary btn-lg btn-block w-100 mb-2">Registrarse</button>
         
     </form>
     

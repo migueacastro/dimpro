@@ -6,7 +6,9 @@
     --third-text-color: #777777;
 }
 
-
+a {
+    text-decoration: none !important;
+}
 .primary-text {
     color: var(--main-text-color)
 }
@@ -99,6 +101,9 @@ table {
     border: none;
 }
 
+.edit-user-form {
+    width: 100% !important;
+}
 @media (min-width: 768px) {
     #sidebar-wrapper {
         margin-left: 0;
@@ -125,10 +130,15 @@ table {
         width: 50% !important;
     }
 
+    .edit-user-form {
+        width: 50% !important;
+    }
     
     
 }
-
+a {
+    text-decoration: none;
+}
 .pagination {
     --bs-pagination-active-bg: var(--main-bg-color) !important;
     --bs-pagination-active-border-color: var(--main-bg-color) !important;

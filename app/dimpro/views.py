@@ -1,9 +1,11 @@
 from django.shortcuts import render
+from django.core.cache import cache
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import check_password, make_password
 from .models import User, Order, Product, Order_Product, Client
-from .forms import LoginForm, UserRegisterForm
+from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm
 from .decorators import only_for
 import json
 # Create your views here.
@@ -38,20 +40,24 @@ def login_staff(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+            user = authenticate(request, username=email, password=password)
             try:
-                user = User.objects.get(email=email, password=password)
+                user = User.objects.get(email=email)
             except User.DoesNotExist:
                 return render(request, 'dimpro/public/login_staff.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
                 })
-           
-            if (user.is_staff and not user.is_superuser):
-                login(request, user)
-                return HttpResponseRedirect(reverse('dimpro:control'))
-            else:
-                return render(request, 'dimpro/public/login_staff.html', {
-                    'message': 'Email o contraseña no valido.', 'form':form
-                })
+            if user is not None:
+                if (user.is_staff and not user.is_superuser):
+                    login(request, user)
+                    return HttpResponseRedirect(reverse('dimpro:control'))
+                else:
+                    return render(request, 'dimpro/public/login_staff.html', {
+                        'message': 'Email o contraseña no valido.', 'form':form
+                    })
+            return render(request, 'dimpro/public/login_staff.html', {
+                'message': 'Email o contraseña no valido.', 'form':form
+    })
         else:
             return render(request, 'dimpro/public/login_staff.html', {
                 'form': form
@@ -70,7 +76,7 @@ def register(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             rpassword = form.cleaned_data['rpassword']
-
+            phonenumber = form.cleaned_data['phonenumber']
             if password != rpassword:
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'Las contraseñas no coinciden.', 'form':form
@@ -80,7 +86,7 @@ def register(request):
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
-            
+
             if email is None or name is None or last_name is None:
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'Debe rellenar los campos.', 'form':form
@@ -102,7 +108,7 @@ def register(request):
                 
             user = authenticate(request, username=email, password=password)
             if user is None:
-                User.objects.create_user(name=name, last_name=last_name, email=email, password=password)
+                User.objects.create_user(name=name, last_name=last_name, email=email, password=password, phonenumber=phonenumber)
                 user = authenticate(request, username=email, password=password)
                 login(request, user)
                 return HttpResponseRedirect(reverse('index'))
@@ -125,7 +131,6 @@ def start(request):
 
 @only_for('staff')
 def control(request):
-
     user = request.user
     
     try:
@@ -320,3 +325,107 @@ def list_products(_request):
         }
         data['products'].append(product_dict)
     return JsonResponse(data)
+
+@only_for('staff')
+def staff_profile(request,id):
+    # AUTH
+    user = request.user
+    if request.user.id != id:
+        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+    return render(request, 'dimpro/staff/staff_profile.html')
+
+
+@only_for('staff')
+def staff_profile_edit(request, id):
+    user = request.user
+    if request.user.id != id:
+        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+    if request.method == 'POST':
+        form = UserEditForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            last_name = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            phonenumber = form.cleaned_data['phonenumber']
+
+            if email is None or name is None or last_name is None:
+                return render(request, 'dimpro/staff/staff_profile_edit.html', {
+                    'message': 'Debe rellenar los campos.', 'form':form
+                })
+            
+            elif not ('@gmail.com' in email or '@outlook.com' in email):
+                return render(request, 'dimpro/staff/staff_profile_edit.html', {
+                    'message': 'Email no valido.', 'form':form
+                })
+            else:
+                try:
+                    registered_user = User.objects.get(email=email)
+                    if registered_user.id != id:
+                        return render(request, 'dimpro/staff/staff_profile_edit.html', {
+                        'message': 'Usuario ya registrado.', 'form':form
+                })
+                except User.DoesNotExist:
+                    pass
+            user_to_edit = User.objects.get(id=id)
+            user_to_edit.name = name
+            user_to_edit.last_name = last_name
+            user_to_edit.email = email
+            user_to_edit.phone = phonenumber
+            user_to_edit.save()
+            return HttpResponseRedirect(f'/app/staff/profile/{id}/')
+        else:
+            return render(request, 'dimpro/staff/staff_profile_edit.html', {
+                'form': form
+            })
+    user = request.user
+    data = {'name': request.user.name, 
+            'last_name': request.user.last_name,
+            'email': request.user.email,
+            'phonenumber': request.user.phone}
+    return render(request, 'dimpro/staff/staff_profile_edit.html', {
+        'user':user, 
+        'form':UserEditForm(data=data)})
+
+@only_for('staff')
+def staff_changepw(request, id):
+    user = request.user
+    if request.user.id != id:
+        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            
+            
+            npassword = form.cleaned_data['npassword']
+            cnpassword = form.cleaned_data['cnpassword']
+
+            if npassword != cnpassword:
+                return  render(request, 'dimpro/staff/staff_changepw.html', {
+                'message': 'Las nuevas contraseñas deben ser iguales.',
+                 'form': form
+            })
+
+            if len(npassword) < 8:
+                return render(request, 'dimpro/public/register.html', {
+                    'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
+                })
+            
+            nuser = User.objects.get(email=user.email) 
+            
+            nuser.set_password(npassword)
+            nuser.save()
+            newuser = authenticate(request,username=user.email, password=npassword)
+            login(request, newuser)
+            return HttpResponseRedirect(f'/app/staff/profile/{id}/')
+        else:
+            return render(request, 'dimpro/staff/staff_changepw.html', {
+                'form': form
+            })
+    return render(request, 'dimpro/staff/staff_changepw.html', {
+        'user':user,
+        'form':ChangePasswordForm()
+    })
+
+@only_for('operator')
+def staff_settings(request):
+    pass
