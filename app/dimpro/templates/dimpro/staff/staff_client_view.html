@@ -14,15 +14,16 @@
         <div class="col-md-6 ">
             <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                 <div>
-                    <p class="fs-6">Nombre: {{ seller.name }} {{ seller.last_name }}</p>
-                    <p class="fs-6">Email: {{ seller.email }}</p>
+                    <p class="fs-6"><i class="fas fa-file-signature mx-2 primary-text p-3"></i> {{ seller.name }} {{ seller.last_name }}</p>
+                    <p class="fs-6"><i class="fas fa-envelope mx-2 primary-text p-3"></i> {{ seller.email }}</p>
+                    <p class="fs-6"><i class="fas fa-phone mx-2 primary-text p-3"></i> {{ seller.phonenumber }}</p>
                 </div>
                 <i class="fas fa-user fs-1 primary-text p-3"></i>
             </div>
         </div>
         
         <div class="col-md-6">
-            <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+            <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded h-100">
                 <div>
                     <p class="fs-6">Se unió en {{ seller.date_joined }}</p>
                     <p class="fs-6">Último inicio de sesión en {{ seller.last_login }}</p>           

@@ -7,13 +7,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator, RegexVa
 import datetime
 # Create your models here.
 class CustomUserManager(UserManager):
-    def _create_user(self, email, password, phonenumber=None, **extra_fields):
+    def _create_user(self, email, password, phonenumber, **extra_fields):
         if not email:
             raise ValueError("No has ingresado una direccion e-mail valida.")
         
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        user.phonenumber = phonenumber
         user.save(using=self._db)
 
         return user
@@ -42,7 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=True, default='')
     last_name = models.CharField(max_length=255, blank=True, default='')
     phoneregex = RegexValidator(regex=r"^\+?58?\d{11,15}$")
-    phone = models.CharField(
+    phonenumber = models.CharField(
         validators=[phoneregex], max_length=17, blank=True, null=False
     )
     is_active = models.BooleanField(default=True)

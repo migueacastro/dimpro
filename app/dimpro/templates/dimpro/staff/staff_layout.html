@@ -29,7 +29,7 @@
         
         
     </head>
-    <body>
+    <body data-is-operator="{{ request.user.is_operator }}">
         
         <div class="d-flex" id="wrapper">
             <!-- Sidebar -->
@@ -44,7 +44,7 @@
 
                 <hr class="w-75 mx-auto">
                 <div class="list-group list-group-flush my-3">
-                    <a href="{% url 'dimpro:control' %}" class="growt list-group-item list-group-item-action bg-transparent second-text active">
+                    <a href="{% url 'dimpro:control' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-house me-2"></i>Inicio
                     </a>
                     <a href="{% url 'dimpro:staff_orders' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
@@ -54,8 +54,8 @@
                         <i class="fas fa-user-group me-2"></i>Vendedores
                     </a>
                     {% if user.is_operator %}
-                    <a href="#" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                        <i class="fas fa-gear me-2"></i>Opciones
+                    <a href="{% url 'dimpro:staff_settings' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-gear me-2"></i>Configuración
                     </a>
                     {% endif %}
                     <a href="{% url 'dimpro:logout' %}" class="growt list-group-item list-group-item-action bg-transparent text-danger fw-bold">
@@ -87,7 +87,7 @@
                         <ul class="dropdown-menu dropdown-menu-end w-25" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{% url 'dimpro:staff_profile' user.id %}">Perfil</a></li>
                             {% if user.is_operator %}
-                            <li><a class="dropdown-item" href="#">Configuracion</a></li>
+                            <li><a class="dropdown-item" href="{% url 'dimpro:staff_settings' %}">Configuracion</a></li>
                             {% endif %}
                             <li><a class="dropdown-item text-danger" href="{% url 'dimpro:logout' %}">Cerrar Sesión</a></li>
                         </ul>

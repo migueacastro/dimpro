@@ -137,6 +137,39 @@ const listSellers=async()=>{
                     <td>${user.username}</td>
                     <td>${user.email}</td>
                     <td>${user.orders}</td>
+                    <td>${user.phonenumber}</td>     
+            `;
+            let isOperator = document.body.dataset.isOperator === 'True';
+            if (isOperator) {
+                content += `
+                    <td><a class="primary-text" href="/app/staff/delete/${user.id}">
+                    <i class="fa-solid fa-trash-can"></i>
+                    </a></td>`;
+            }
+            content+=`</tr>`;
+        });
+        tableBody_orders.innerHTML=content;
+    } catch(ex) {
+        alert(ex);
+    }
+};
+
+const listEmployees=async()=>{
+    try {
+        const response=await fetch('/app/list_employees/');
+        const data= await response.json();
+
+        let content=``;
+        data.employees.forEach((user, index)=>{
+            content+=`
+                <tr class="clickable-row" data-href="/app/staff/view/seller/${user.id}">
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phonenumber}</td>
+                    <td><a class="primary-text" href="/app/staff/delete/${user.id}">
+                    <i class="fa-solid fa-trash-can"></i>
+                    </a></td>
                 </tr>
             `;
         });
@@ -145,7 +178,6 @@ const listSellers=async()=>{
         alert(ex);
     }
 };
-
 
 $(document).ready(function($) {
     $(document).on('click', '.clickable-row', function() {

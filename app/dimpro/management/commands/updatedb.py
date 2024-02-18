@@ -68,4 +68,52 @@ class Command(BaseCommand):
             schedule.run_pending()
             time.sleep(1)
             
+def update():
+            def add_data(it, det, ref, avq):
+                d, created = Product.objects.get_or_create(item=it, details=det, reference=ref, available_quantity=avq)
+                return d
+
+            alegra_user = AlegraUser.objects.get(id=1)
+            client = Client(alegra_user.email, alegra_user.token)
+
+            itemquantity = ItemQuantity.objects.get(id=1)
+            n = (int(itemquantity.quantity) // 30) 
+            items = []
+
             
+            
+
+            for i in range(n):
+
+                dictu = client.list_items(start=(n * 10 * i), order="ASC")
+                items = items + dictu
+            
+            for row in items:
+                item = row['name']
+                details = row['description']
+                reference = row['reference']
+                try:
+                    available_quantity = row['inventory']['availableQuantity']
+                except KeyError as e:
+                    available_quantity = 0
+                
+                try:
+                    selecteditem = Product.objects.get(reference=reference)
+                    selecteditem.item = item
+                    
+                    try:
+                        selecteditem.details = details
+                    except Product.IntegrityError as e:
+                        continue
+                
+                    selecteditem.reference = reference
+                    selecteditem.available_quantity = available_quantity
+                    
+
+                    selecteditem.save()
+                except Product.DoesNotExist:
+                    try:
+                        add_data(item, details, reference, available_quantity)
+                        
+                    except IntegrityError as e:
+                        continue

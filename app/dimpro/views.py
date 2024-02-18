@@ -4,9 +4,10 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
-from .models import User, Order, Product, Order_Product, Client
-from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm
+from .models import User, Order, Product, Order_Product, Client, AlegraUser
+from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm, AlegraUserForm
 from .decorators import only_for
+from dimpro.management.commands.updatedb import update
 import json
 # Create your views here.
 
@@ -256,6 +257,7 @@ def list_sellers(_request):
             'date_joined': user.date_joined.strftime('%d %B %Y %H:%M'),
             'last_login': user.last_login.strftime('%d %B %Y %H:%M'),
             'email': user.email,
+            'phonenumber': user.phonenumber,
             'orders': user.user_orders()
         }
         data['sellers'].append(order_dict)
@@ -370,7 +372,7 @@ def staff_profile_edit(request, id):
             user_to_edit.name = name
             user_to_edit.last_name = last_name
             user_to_edit.email = email
-            user_to_edit.phone = phonenumber
+            user_to_edit.phonenumber = phonenumber
             user_to_edit.save()
             return HttpResponseRedirect(f'/app/staff/profile/{id}/')
         else:
@@ -381,7 +383,7 @@ def staff_profile_edit(request, id):
     data = {'name': request.user.name, 
             'last_name': request.user.last_name,
             'email': request.user.email,
-            'phonenumber': request.user.phone}
+            'phonenumber': request.user.phonenumber}
     return render(request, 'dimpro/staff/staff_profile_edit.html', {
         'user':user, 
         'form':UserEditForm(data=data)})
@@ -426,6 +428,115 @@ def staff_changepw(request, id):
         'form':ChangePasswordForm()
     })
 
+
+@only_for('operator')
+def delete_user(request, id):
+    user = User.objects.get(id=id)
+    user.delete()
+    return HttpResponseRedirect(reverse('dimpro:staff_settings'))
+
 @only_for('operator')
 def staff_settings(request):
-    pass
+    return render(request, 'dimpro/staff/staff_settings.html')
+
+@only_for('operator')
+def list_employees(_request):
+    employeequery = User.objects.filter(is_staff=True, is_superuser=False)
+    data = {'employees': []}
+    for user in employeequery:
+        date_joined = user.date_joined.strftime('%d %B %Y %H:%M') if user.date_joined else 'No se ha unido aún'
+        last_login = user.last_login.strftime('%d %B %Y %H:%M') if user.last_login else 'No ha iniciado sesión aún'
+        order_dict = {
+            'id': user.id,
+            'username': f'{user.name} {user.last_name}',
+            'date_joined': date_joined,
+            'last_login': last_login,
+            'email': user.email,
+            'phonenumber': user.phonenumber,
+            'orders': user.user_orders()
+        }
+        data['employees'].append(order_dict)
+    return JsonResponse(data)
+
+@only_for('operator')
+def staff_employees(request):
+    return render(request, 'dimpro/staff/staff_employees.html')
+
+@only_for('operator')
+def staff_register_employee(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            last_name = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            rpassword = form.cleaned_data['rpassword']
+            phonenumber = form.cleaned_data['phonenumber']
+            if password != rpassword:
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Las contraseñas no coinciden.', 'form':form
+                })
+
+            if len(password) < 8:
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
+                })
+
+            if email is None or name is None or last_name is None:
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Debe rellenar los campos.', 'form':form
+                })
+            
+            elif not ('@gmail.com' in email or '@outlook.com' in email):
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Email no valido.', 'form':form
+                })
+            else:
+                try:
+                    User.objects.get(email=email)
+                    return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Usuario ya registrado.', 'form':form
+                })
+                
+                except User.DoesNotExist:
+                    pass
+                
+            user = authenticate(request, username=email, password=password)
+            if user is None:
+                User.objects.create_staff(name=name, last_name=last_name, email=email, password=password, phonenumber=phonenumber)
+                return HttpResponseRedirect(reverse('dimpro:staff_employees'))
+            else:
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Usuario ya registrado.', 'form':form
+                })
+        else:
+            return render(request, 'dimpro/staff/staff_register.html', {
+                'form': form
+            })
+    return render(request, 'dimpro/staff/staff_register.html', {
+        'form': UserRegisterForm()
+    })
+
+@only_for('operator')
+def staff_changetk(request):
+    account = AlegraUser.objects.get(id=1)
+    if request.method == 'POST':
+        form = AlegraUserForm(request.POST)
+        if form.is_valid():
+            account.email = form.cleaned_data['email']
+            account.token = form.cleaned_data['token']
+            account.save()
+            return HttpResponseRedirect(reverse('dimpro:staff_settings'))
+        else:
+            return render(request, 'dimpro/staff/staff_changetk.html', {
+            'form': form})
+    data = {'email':account.email, 'token':account.token}
+    return render(request, 'dimpro/staff/staff_changetk.html', {
+        'form': AlegraUserForm(data=data)
+    })
+
+@only_for('operator')
+def staff_updatedb(request):
+    update()
+    return HttpResponseRedirect(reverse('dimpro:staff_settings'))

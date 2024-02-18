@@ -28,7 +28,14 @@ urlpatterns = [
     path("staff/profile/<int:id>/", views.staff_profile, name='staff_profile'),
     path("staff/profile/edit/<int:id>/", views.staff_profile_edit, name='staff_profile_edit'),
     path("staff/profile/changepassword/<int:id>", views.staff_changepw, name='staff_changepw'),
-    path("staff/settings", views.staff_settings, name='staff_settings')
+    path("staff/settings", views.staff_settings, name='staff_settings'),
+    path("staff/delete/<int:id>", views.delete_user, name='staff_delete_user'),
+    path("list_employees/", views.list_employees, name='list_employees'),
+    path("staff/employees/", views.staff_employees, name='staff_employees'),
+    path("staff/register_employee/", views.staff_register_employee, name='staff_register'),
+    path("staff/change_token/", views.staff_changetk, name='staff_changetk'),
+    path("staff/updatedb/", views.staff_updatedb, name='update_db'),
+    
     # CLIENT
 
 ]
