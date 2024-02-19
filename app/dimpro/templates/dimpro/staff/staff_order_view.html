@@ -34,8 +34,15 @@
                     <h3 class="fs-4 mb-3 primary-text">Items: {{ order_categories }}</h3>
                 </div>
                 <div class="col-6 col-md-6 text-end d-flex justify-content-end">
+                    <a href="{% url 'dimpro:change_status' order.id %}">
+                        {% if order.status == 'pendiente' %}
+                            <button style="background-color: rgb(226, 200, 116) !important; border: none;" type="button" class="btn btn-primary fs-6 grow mx-2">Pendiente</button>
+                        {% else %}
+                            <button type="button" class="btn btn-primary preparado fs-6 grow  mx-2">Preparado</button>
+                        {% endif %}
+                    </a>
                     <a href="{% url 'dimpro:edit_order' order.id  %}">
-                        <button type="button" class="btn btn-primary grow"><i class="fa-solid fa-pen-to-square mx-1"></i>Editar</button>
+                        <button type="button" class="btn btn-primary grow"><i class="fa-solid fa-pen-to-square mx-1"></i></button>
                     </a>
                     
                     {% include 'dimpro/staff/add_order.html' %}

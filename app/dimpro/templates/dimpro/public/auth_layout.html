@@ -18,6 +18,11 @@
                     <div class="col-12 col-sm-8 col-md-6 m-auto">
                         <div class="card">
                             <div class="text-center card-body">
+                                            {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
                                 {% block body %}{% endblock %}
                             </div>
                         </div>

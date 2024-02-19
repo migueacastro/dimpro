@@ -13,7 +13,7 @@ function ShowDataTable (dataTableModel) {
                 "sProcessing":    "Procesando...",
                 "sLengthMenu":    "Mostrar _MENU_ registros",
                 "sZeroRecords":   "No se encontraron resultados",
-                "sEmptyTable":    "Ningún dato disponible en esta tabla",
+                "sEmptyTable":    "Ningún dato disponible",
                 "sInfo":          "",
                 "sInfoEmpty":     "Mostrando registros del 0 al 0 de un total de 0 registros",
                 "sInfoFiltered":  "(filtrado de un total de _MAX_ registros)",
@@ -116,6 +116,43 @@ const listOrders=async()=>{
                     <td>${order.date}</td>
                 </tr>
             `;
+            }
+        });
+        tableBody_orders.innerHTML=content;
+    } catch(ex) {
+        alert(ex);
+    }
+};
+
+const listOrdersAll=async()=>{
+    try {
+        let response;
+        response=await fetch('/app/list_orders/all/');
+
+        
+        const data= await response.json();
+
+        let content=``;
+        data.orders.forEach((order, index)=>{
+            if (order.products > 0) {
+                content+=`
+                <tr class="clickable-row" data-href="/app/staff/view/order/${order.id}">
+                    <td>${order.id}</td>
+                    <td>${order.user_email}</td>
+                    <td>${order.client_name}</td>
+                    <td>${order.products}</td>
+                `;
+                if (order.status == 'Pendiente') {
+                    content += `<td><p class="m-2 p-2 red-bg rounded text-center second-text grow mx-auto">Pendiente</p></td>`;
+                }
+                else {
+                    content += `<td><p class="m-2 p-2 rounded text-center second-text grow mx-auto" style="background-color: var(--main-bg-color) !important;">Preparado</p></td>`;
+                }
+
+                content += `
+                    <td>${order.date}</td>
+                </tr>
+                `;
             }
         });
         tableBody_orders.innerHTML=content;

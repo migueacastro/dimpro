@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from .models import User, Order, Product, Order_Product, Client, AlegraUser
@@ -87,7 +88,12 @@ def register(request):
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
-
+            
+            if not any(c.isalpha() for c in password):
+                return render(request, 'dimpro/public/register.html', {
+                    'message': 'La contraseña debe contener letras del alfabeto.', 'form':form
+                })
+            
             if email is None or name is None or last_name is None:
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'Debe rellenar los campos.', 'form':form
@@ -112,6 +118,7 @@ def register(request):
                 User.objects.create_user(name=name, last_name=last_name, email=email, password=password, phonenumber=phonenumber)
                 user = authenticate(request, username=email, password=password)
                 login(request, user)
+                messages.success(request, 'Usuario registrado exitosamente.')
                 return HttpResponseRedirect(reverse('index'))
             else:
                 return render(request, 'dimpro/public/register.html', {
@@ -194,8 +201,8 @@ def index(request):
 
 def logout_action(request):
     logout(request)
+    messages.info(request, 'Sesión cerrada.')
     return render(request, 'dimpro/public/start.html', {
-        'message':'Sesión Cerrada'
     })
                   
 @only_for('staff')
@@ -299,6 +306,7 @@ def edit_order(request, id):
                         order = Order.objects.get(id=id)
                         product = Product.objects.get(item=row['item'])
                         Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+            messages.success(request, 'Pedido actualizado exitosamente.')
             return HttpResponseRedirect(reverse('dimpro:control'))
         
     else:
@@ -374,6 +382,7 @@ def staff_profile_edit(request, id):
             user_to_edit.email = email
             user_to_edit.phonenumber = phonenumber
             user_to_edit.save()
+            messages.success(request, 'Perfil editado exitosamente.')
             return HttpResponseRedirect(f'/app/staff/profile/{id}/')
         else:
             return render(request, 'dimpro/staff/staff_profile_edit.html', {
@@ -408,16 +417,20 @@ def staff_changepw(request, id):
             })
 
             if len(npassword) < 8:
-                return render(request, 'dimpro/public/register.html', {
+                return render(request, 'dimpro/staff/staff_register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
-            
+            if not any(c.isaplha() for c in npassword):
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'La contraseña debe contener letras del alfabeto.', 'form':form
+                })
             nuser = User.objects.get(email=user.email) 
             
             nuser.set_password(npassword)
             nuser.save()
             newuser = authenticate(request,username=user.email, password=npassword)
             login(request, newuser)
+            messages.success(request, 'Contraseña actualizada exitosamente.')
             return HttpResponseRedirect(f'/app/staff/profile/{id}/')
         else:
             return render(request, 'dimpro/staff/staff_changepw.html', {
@@ -433,6 +446,7 @@ def staff_changepw(request, id):
 def delete_user(request, id):
     user = User.objects.get(id=id)
     user.delete()
+    messages.success(request, 'Usuario eliminado exitosamente.')
     return HttpResponseRedirect(reverse('dimpro:staff_settings'))
 
 @only_for('operator')
@@ -441,7 +455,7 @@ def staff_settings(request):
 
 @only_for('operator')
 def list_employees(_request):
-    employeequery = User.objects.filter(is_staff=True, is_superuser=False)
+    employeequery = User.objects.filter(is_staff=True, is_superuser=False).exclude(is_operator=True)
     data = {'employees': []}
     for user in employeequery:
         date_joined = user.date_joined.strftime('%d %B %Y %H:%M') if user.date_joined else 'No se ha unido aún'
@@ -482,7 +496,10 @@ def staff_register_employee(request):
                 return render(request, 'dimpro/staff/staff_register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
-
+            if not any(c.isaplha() for c in password):
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'La contraseña debe contener letras del alfabeto.', 'form':form
+                })
             if email is None or name is None or last_name is None:
                 return render(request, 'dimpro/staff/staff_register.html', {
                     'message': 'Debe rellenar los campos.', 'form':form
@@ -505,6 +522,7 @@ def staff_register_employee(request):
             user = authenticate(request, username=email, password=password)
             if user is None:
                 User.objects.create_staff(name=name, last_name=last_name, email=email, password=password, phonenumber=phonenumber)
+                messages.success(request, 'Usuario registrado exitosamente.')
                 return HttpResponseRedirect(reverse('dimpro:staff_employees'))
             else:
                 return render(request, 'dimpro/staff/staff_register.html', {
@@ -527,6 +545,7 @@ def staff_changetk(request):
             account.email = form.cleaned_data['email']
             account.token = form.cleaned_data['token']
             account.save()
+            messages.info(request, 'Token de Alegra actualizado.')
             return HttpResponseRedirect(reverse('dimpro:staff_settings'))
         else:
             return render(request, 'dimpro/staff/staff_changetk.html', {
@@ -539,4 +558,17 @@ def staff_changetk(request):
 @only_for('operator')
 def staff_updatedb(request):
     update()
+    messages.info(request, 'La base de datos ha sido actualizada.')
     return HttpResponseRedirect(reverse('dimpro:staff_settings'))
+
+@only_for('staff')
+def staff_changestatus(request, id):
+    order = Order.objects.get(id=id)
+    if order.status == 'pendiente':
+        order.status = 'preparado'
+        order.save()
+    else:
+        order.status = 'pendiente'
+        order.save()
+    messages.success(request, 'Estatus cambiado exitosamente')
+    return HttpResponseRedirect(f'/app/staff/view/order/{order.id}')

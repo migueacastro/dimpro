@@ -13,11 +13,11 @@
 {% block body %}
     <div class="row g-3 my-2">
         <div class="col-md-4">
-            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+            <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                 <div>
                     <a href="{% url 'dimpro:staff_orders' %}" class="text-decoration-none primary-text">
-                        <h3 class="fs-2">{{ n_orders }}</h3>
-                        <p class="fs-5">Pedidos Pendientes</p></a>
+
+                        <p class="fs-5">Historial de Pedidos</p></a>
                     
                 </div>
                 <i class="fas fa-box fs-1 primary-text p-3"></i>
@@ -25,7 +25,7 @@
         </div>
         
         <div class="col-md-4">
-            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
+            <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
                 <div>
                     <a href="{% url 'dimpro:staff_clients' %}" class="text-decoration-none primary-text">
                         <h3 class="fs-2">{{ n_sellers }}</h3>
@@ -39,7 +39,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
+            <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items center rounded">
                 <div>
                     <a href="{% url 'dimpro:staff_profile' user.id %}" class="text-decoration-none primary-text">
                         <h3 class="fs-2">Empleado</h3>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="col md-4">
-            <h3 class="fs-4 mb-3 primary-text">Pedidos Recientes</h3>
+            <h3 class="fs-4 mb-3 primary-text">Pedidos Pendientes</h3>
             <div class="col mx-auto">
                 <div class="table-responsive">
                     <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">

@@ -35,6 +35,7 @@ urlpatterns = [
     path("staff/register_employee/", views.staff_register_employee, name='staff_register'),
     path("staff/change_token/", views.staff_changetk, name='staff_changetk'),
     path("staff/updatedb/", views.staff_updatedb, name='update_db'),
+    path("staff/changestatus/<int:id>", views.staff_changestatus, name='change_status'),
     
     # CLIENT
 

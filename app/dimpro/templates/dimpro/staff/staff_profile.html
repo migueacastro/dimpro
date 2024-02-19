@@ -16,7 +16,7 @@
         <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
             <div>
                     <h3 class="fs-2 mt-3">{{ user.name }} {{ user.last_name }}</h3>
-                    <p class="fs-5">Empleado {% if user.is_operator %}Operador{% endif %}</p>
+                    <p class="fs-5">{% if user.is_operator %}Operador{% else %}Empleado de Oficina{% endif %}</p>
                     <br>
 
                     <p><i class="mx-2 primary-text fs-5 fa-solid fa-envelope"></i> {{ user.email }}</p>

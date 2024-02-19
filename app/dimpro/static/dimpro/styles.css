@@ -9,6 +9,9 @@
 a {
     text-decoration: none !important;
 }
+.btn-primary:hover {
+    background-color: var(--main-bg-color);
+}
 .primary-text {
     color: var(--main-text-color)
 }
@@ -19,13 +22,13 @@ a {
     color: var(--third-text-color)
 }
 .primary-bg {
-    background-color: var(--color-primary)
+    background-color:  #0e4889 !important;
 }
 .secondary-bg {
     background-color: var(--main-text-color);
 }
 .red-bg {
-    background-color: rgb(226, 200, 116);
+    background-color: rgb(226, 200, 116) !important;
 }
 .grow {
     transition: all .2s ease-in-out;
@@ -58,7 +61,7 @@ table {
     )
 }
 .btn-primary {
-    background-color: var(--main-bg-color) !important;
+    background-color: var(--main-bg-color);
 }
 #sidebar-wrapper {
     min-height: 100vh;
@@ -190,4 +193,15 @@ a {
     }
     
     
+}
+
+.btn .preparado {
+    background-color:  #0e4889 !important;
+    color: white !important;
+}
+
+.btn-primary .pendiente {
+    background-color: rgb(226, 200, 116) !important;
+
+    color: white !important;
 }
