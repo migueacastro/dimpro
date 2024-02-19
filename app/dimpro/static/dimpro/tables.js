@@ -1,6 +1,5 @@
 let dataTable;
 let dataTableIsInitialized=false;
-let hasId=false;
 function ShowDataTable (dataTableModel) {
     const initDataTable=async()=>{
         if(dataTableIsInitialized){
@@ -91,10 +90,10 @@ function editDataTable (dataTableModel) {
 const listOrders=async()=>{
     try {
         let response;
-        if (hasId) {
-            let url = window.location.href;
-            let parts = url.split('/');
-            let lastNumber = parts[parts.length - 1];
+        let url = window.location.href;
+        let parts = url.split('/');
+        let lastNumber = parts[parts.length - 1];
+        if (!isNaN(lastNumber) && lastNumber != "") {
             response=await fetch(`/app/list_orders/user/${lastNumber}`);
         }
         else {
@@ -112,10 +111,18 @@ const listOrders=async()=>{
                     <td>${order.user_email}</td>
                     <td>${order.client_name}</td>
                     <td>${order.products}</td>
-                    <td><p class="red-bg rounded text-center second-text grow mx-auto">${order.status}</p></td>
+                    `;
+                if (order.status == 'Pendiente') {
+                    content += `<td><p class="m-2 p-2 red-bg rounded text-center second-text grow mx-auto">Pendiente</p></td>`;
+                }
+                else {
+                    content += `<td><p class="m-2 p-2 rounded text-center second-text grow mx-auto" style="background-color: var(--main-bg-color) !important;">Preparado</p></td>`;
+                }
+
+                content += `
                     <td>${order.date}</td>
                 </tr>
-            `;
+                `;
             }
         });
         tableBody_orders.innerHTML=content;
@@ -123,6 +130,7 @@ const listOrders=async()=>{
         alert(ex);
     }
 };
+
 
 const listOrdersAll=async()=>{
     try {
