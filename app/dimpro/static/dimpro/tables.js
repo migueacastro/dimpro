@@ -92,9 +92,10 @@ const listOrders=async()=>{
         let response;
         let url = window.location.href;
         let parts = url.split('/');
-        let lastNumber = parts[parts.length - 1];
+        let lastNumber = parts[parts.length - 2];
+        let isUser = document.body.dataset.isUser === 'true';
         if (!isNaN(lastNumber) && lastNumber != "") {
-            response=await fetch(`/app/list_orders/user/${lastNumber}`);
+            response=await fetch(`/app/list_orders/user/${lastNumber}/`);
         }
         else {
             response=await fetch('/app/list_orders/');
@@ -104,11 +105,20 @@ const listOrders=async()=>{
 
         let content=``;
         data.orders.forEach((order, index)=>{
-            if (order.products > 0) {
-                content+=`
+            if ((!isNaN(lastNumber) && lastNumber != "") || order.products > 0) {
+                if (isUser) {
+                    content+=`
+                <tr class="clickable-row" data-href="/app/client/order/view/${order.id}">
+                    <td>${order.id}</td>`;
+                }
+                else {
+                    content+=`
                 <tr class="clickable-row" data-href="/app/staff/view/order/${order.id}">
-                    <td>${order.id}</td>
-                    <td>${order.user_email}</td>
+                    <td>${order.id}</td>`; }
+                if (isNaN(lastNumber)) {
+                    content += `<td>${order.user_email}</td>`;
+                }
+                content+=`
                     <td>${order.client_name}</td>
                     <td>${order.products}</td>
                     `;
@@ -127,7 +137,7 @@ const listOrders=async()=>{
         });
         tableBody_orders.innerHTML=content;
     } catch(ex) {
-        alert(ex);
+        console.log(ex);
     }
 };
 
@@ -266,8 +276,8 @@ const listOrderProductsEdit=async()=>{
         let product_search = await fetch("/app/list_products/");
         let url = window.location.href;
         let parts = url.split('/');
-        let lastNumber = parts[parts.length - 1];
-        response=await fetch(`/app/list_products_order/order/${lastNumber}`);
+        let lastNumber = parts[parts.length - 2];
+        response=await fetch(`/app/list_products_order/order/${lastNumber}/`);
         product_data = await product_search.json();
         const data= await response.json();
 
@@ -313,7 +323,7 @@ const listOrderProductsEdit=async()=>{
         });
         tableBody_orders.innerHTML=content;
     } catch(ex) {
-        alert(ex);
+        console.log(ex);
     }
 };
 var product_data;
@@ -332,24 +342,26 @@ function setInputValue(input, product_data) {
     for (var i = 0; i < rows.length -1; i++) {
 
         var row = document.getElementById(i);
-
-        if (row.style.display === 'none') {
-            continue;
+        if (row) {
+            if (row.style.display === 'none') {
+                continue;
+            }
+    
+            var item = document.getElementById('item-' + i).value;
+    
+            itemCounts[item] = (itemCounts[item] || 0) + 1;
+    
+            if (valor === item && itemCounts[item] > 1) {
+                console.log('El producto ya existe en la tabla');
+                input.value = '';
+                input.placeholder = 'El producto ya existe';
+                return;  // Termina la ejecución de la función aquí
+            }
+            if (item !== null && item !== '' && i == inputId.charAt(inputId.length -1)) {
+                duplicateRow(i);
+            }    
         }
-
-        var item = document.getElementById('item-' + i).value;
-
-        itemCounts[item] = (itemCounts[item] || 0) + 1;
-
-        if (valor === item && itemCounts[item] > 1) {
-            console.log('El producto ya existe en la tabla');
-            input.value = '';
-            input.placeholder = 'El producto ya existe';
-            return;  // Termina la ejecución de la función aquí
-        }
-        if (item !== null && item !== '' && i == inputId.charAt(inputId.length -1)) {
-            duplicateRow(i);
-        }    
+        
 
     }
     var selectedItem = input.value;
@@ -409,7 +421,18 @@ async function changeValues (id, reference, aq, q, name) {
 }
 
 function addRow() {
+
     let index = document.getElementById('tableBody_orders').rows.length;
+    
+    var element = document.querySelector('.dataTables_empty');
+    if (element) {
+        var parentElement = element.parentElement;
+            if (parentElement) {
+                parentElement.style.display = 'none';
+            }
+    }
+    
+    
     let table = document.getElementById('tableBody_orders');
 
     let row = document.createElement('tr');
@@ -516,16 +539,23 @@ function postData() {
     let table = document.getElementById('tableBody_orders');
     let data = [];
 
-
+    
     let url = window.location.href;
     let parts = url.split('/');
-    let lastNumber = parts[parts.length - 1];
+    let lastNumber = parts[parts.length - 2];
 
     for (let i =  0; i < table.rows.length; i++) {
         let row = table.rows[i];
         let rowIndex = row.id;
 
-        let item = document.getElementById('item-' + rowIndex).value;
+        let item = document.getElementById('item-' + rowIndex);
+
+        if (item) {
+            item = item.value;
+        }
+        else {
+            continue;
+        }
 
         let reference = document.getElementById('reference-' + rowIndex).value;
 
@@ -550,26 +580,50 @@ function postData() {
         }
         
     }
-
+    let isUser = document.body.dataset.isUser === 'true';
+    if (isUser) {
+        fetch(`/app/client/order/edit/${lastNumber}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.getElementById('csrf').innerText
+            },
     
-    fetch(`/app/staff/view/order/edit/${lastNumber}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.getElementById('csrf').innerText
-        },
-
-        body: JSON.stringify(data),
-    })
-    .then(response => {
-        console.log(response);
-        return response.json();
-    })
-    .then(data => {
-        console.log(('Success:'), data);
-    })
-    .catch((error) => {
-        console.log('Error:', error);
-    });
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
+        .then(data => {
+            console.log(('Success:'), data);
+        })
+        .catch((error) => {
+            console.log('Error:', error);
+        });
+    }
+    else {
+        fetch(`/app/staff/view/order/edit/${lastNumber}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.getElementById('csrf').innerText
+            },
+    
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
+        .then(data => {
+            console.log(('Success:'), data);
+        })
+        .catch((error) => {
+            console.log('Error:', error);
+        });
+    }
+    
+    
 }
 

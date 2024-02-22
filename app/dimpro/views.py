@@ -22,7 +22,7 @@ def login_user(request):
             user = authenticate(request, username=email, password=password)
             if user is not None and not user.is_staff and not user.is_superuser:
                 login(request, user)
-                return HttpResponseRedirect(reverse('index'))
+                return HttpResponseRedirect(reverse('dimpro:index'))
             else:
                 return render(request, 'dimpro/login.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
@@ -119,7 +119,7 @@ def register(request):
                 user = authenticate(request, username=email, password=password)
                 login(request, user)
                 messages.success(request, 'Usuario registrado exitosamente.')
-                return HttpResponseRedirect(reverse('index'))
+                return HttpResponseRedirect(reverse('dimpro:index'))
             else:
                 return render(request, 'dimpro/public/register.html', {
                     'message': 'Usuario ya registrado.', 'form':form
@@ -194,11 +194,6 @@ def staff_order_view(request, id):
 
 
 
-
-@only_for('user')
-def index(request):
-    return render(request, 'index.html')
-
 def logout_action(request):
     logout(request)
     messages.info(request, 'Sesión cerrada.')
@@ -237,14 +232,17 @@ def list_orders_all(_request):
         data['orders'].append(order_dict)
     return JsonResponse(data)
 
-@only_for('staff')
+@only_for('signedin')
 def list_orders_user(_request, id):
-    orderquery = Order.objects.filter(user_email=id)
+    user = User.objects.get(id=id)
+    if (user.is_staff):
+        return HttpResponseRedirect(reverse('dimpro:index'))
+    orderquery = Order.objects.filter(user_email=user.id)
     data = {'orders': []}
     for order in orderquery:
         order_dict = {
             'id': order.id,
-            'user_email': f'{order.user_email.name} {order.user_email.last_name}',
+            'user_email': f'{user.email} {user.last_name}',
             'client_name': order.client_id.name,
             'date': order.date.strftime('%d %B %Y %H:%M'),
             'status': order.status.capitalize(),
@@ -270,9 +268,10 @@ def list_sellers(_request):
         data['sellers'].append(order_dict)
     return JsonResponse(data)
 
-@only_for('staff')
+@only_for('signedin')
 def list_products_for_order(_request, id):
     products = Order_Product.objects.filter(order_id=id)
+
     data = {'products': []}
     for product in products:
         order_dict = {
@@ -288,26 +287,26 @@ def list_products_for_order(_request, id):
 @only_for('staff')
 def edit_order(request, id):
     if request.method == 'POST':
-            data = json.loads(request.body)
-            for row in data:
-                quantity = int(row['quantity'])
-                try: 
+        data = json.loads(request.body)
+        for row in data:
+            quantity = int(row['quantity'])
+            try: 
+                product = Product.objects.get(item=row['item'])
+                object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                if quantity == 0:
+                    object.delete()
+                else:
+                    object.quantity = int(quantity)
+                    object.save()
+            except Order_Product.DoesNotExist:
+                if quantity == 0:
+                    continue
+                else:
+                    order = Order.objects.get(id=id)
                     product = Product.objects.get(item=row['item'])
-                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
-                    if quantity == 0:
-                        object.delete()
-                    else:
-                        object.quantity = int(quantity)
-                        object.save()
-                except Order_Product.DoesNotExist:
-                    if quantity == 0:
-                        continue
-                    else:
-                        order = Order.objects.get(id=id)
-                        product = Product.objects.get(item=row['item'])
-                        Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
-            messages.success(request, 'Pedido actualizado exitosamente.')
-            return HttpResponseRedirect(reverse('dimpro:control'))
+                    Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+        messages.success(request, 'Pedido actualizado exitosamente.')
+        return HttpResponseRedirect(reverse('dimpro:control'))
         
     else:
         order = Order.objects.get(id=id)
@@ -317,7 +316,7 @@ def edit_order(request, id):
             'products': products
         })
     
-@only_for('staff')
+@only_for('signedin')
 def list_products(_request):
     products = Product.objects.all()
     data = {'products': []}
@@ -345,7 +344,7 @@ def staff_profile(request,id):
     return render(request, 'dimpro/staff/staff_profile.html')
 
 
-@only_for('staff')
+@only_for('signedin')
 def staff_profile_edit(request, id):
     user = request.user
     if request.user.id != id:
@@ -397,7 +396,7 @@ def staff_profile_edit(request, id):
         'user':user, 
         'form':UserEditForm(data=data)})
 
-@only_for('staff')
+@only_for('signedin')
 def staff_changepw(request, id):
     user = request.user
     if request.user.id != id:
@@ -572,3 +571,116 @@ def staff_changestatus(request, id):
         order.save()
     messages.success(request, 'Estatus cambiado exitosamente')
     return HttpResponseRedirect(f'/app/staff/view/order/{order.id}')
+
+@only_for('user')
+def index(request):
+    user = request.user
+    return render(request, 'dimpro/client/client_dashboard.html',{
+        'user': user})
+
+@only_for('user')
+def client_profile(request,id):
+    # AUTH
+    user = request.user
+    if request.user.id != id:
+        return HttpResponseRedirect(f'/app/client/profile/{request.user.id}/')
+    return render(request, 'dimpro/client/client_profile.html')
+
+
+@only_for('user')
+def client_orders(request, id):
+    user = request.user
+    
+    try:
+        list_of_orders = Order.objects.filter(user_email=id)
+        number_of_orders = list_of_orders.count()
+    except Order.DoesNotExist:
+        list_of_orders = []
+        number_of_orders = 0
+    except User.DoesNotExist:
+        number_of_sellers = 0
+    return render(request, 'dimpro/client/client_orders.html', {
+        'user': user, 'orders':list_of_orders, 'n_orders': number_of_orders
+    })
+
+@only_for('user')
+def client_orders_add(request, id):
+    if id != request.user.id: 
+        return HttpResponseRedirect(reverse('dimpro:index'))
+    
+    if request.method == 'POST':
+        user_id = User.objects.get(id = request.POST.get('user_id'))                   
+        client_id = Client.objects.get(id = request.POST.get('client_id'))
+
+        status = 'pendiente'
+
+        new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente')
+        new_order.save(force_update=True)
+        return HttpResponseRedirect(f'/app/client/order/edit/{new_order.id}/')
+
+    user = request.user
+    list_of_clients = Client.objects.all()
+    return render(request, 'dimpro/client/client_create_order.html', {
+        'clients': list_of_clients, 'user':user})
+
+
+@only_for('user')
+def client_orders_edit(request, id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        for row in data:
+            quantity = int(row['quantity'])
+            try: 
+                product = Product.objects.get(item=row['item'])
+                object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                if quantity == 0:
+                    object.delete()
+                else:
+                    object.quantity = int(quantity)
+                    object.save()
+            except Order_Product.DoesNotExist:
+                if quantity == 0:
+                    continue
+                else:
+                    order = Order.objects.get(id=id)
+                    product = Product.objects.get(item=row['item'])
+                    new_product = Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+                    new_product.save(force_update=True)
+                    
+        messages.success(request, 'Pedido actualizado exitosamente.')
+        return HttpResponseRedirect(f'/app/client/orders/{Order.objects.get(id=id).user_email.id}/')
+        
+    else:
+        order = Order.objects.get(id=id)
+        products = Product.objects.all()
+        return render(request, 'dimpro/client/client_edit_order.html', {
+            'order':order,
+            'products': products
+        })
+    
+
+@only_for('user')
+def client_order_view(request, id):
+    if request.method == "POST":
+        pass
+    order = Order.objects.get(id=id)
+    client = User.objects.get(email=order.user_email)
+    return render(request, 'dimpro/client/client_order_view.html', {
+        'seller': client, 
+        'order': order,
+        'client': order.client_id.name,
+        'order_categories': order.product_categories()
+    })
+
+@only_for('user')
+def client_order_delete(request, id):
+    order = Order.objects.get(id=id)
+    if order.status == 'preparado':
+        messages.error(request, 'No se puede eliminar un pedido preparado.')
+        return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+    if request.user.id != order.user_email.id:
+        return HttpResponseRedirect(reverse('dimpro:index'))
+    
+    order.delete()
+    messages.success(request,'Pedido eliminado exitosamente.')
+    return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')

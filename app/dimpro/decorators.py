@@ -45,6 +45,11 @@ def only_for(role):
                     return redirect(reverse('dimpro:start'))
                 else:
                     return view_func(request, *args, **kwargs)
+            elif role == 'signedin':
+                if request.user.is_authenticated:
+                    return view_func(request, *args, **kwargs)
+                else:
+                    return redirect(reverse('dimpro:start'))
             else:
                 raise ValueError
         return wrapper

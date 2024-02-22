@@ -1,0 +1,70 @@
+{% extends 'dimpro/client/client_layout.html' %}
+{% load static %}
+{% block title %}
+    {{ user.name }} {{ user.last_name }}
+    
+{% endblock %}
+
+{% block stitle %}
+    Perfil
+{% endblock %}
+
+{% block body %}
+<div class="row g-3 my-2">
+    
+    <div class="col-md-12">
+        <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+            <div>
+                    <h3 class="fs-2 mt-3">{{ user.name }} {{ user.last_name }}</h3>
+                    <p class="fs-5">Vendedor</p>
+                    <br>
+
+                    <p><i class="mx-2 primary-text fs-5 fa-solid fa-envelope"></i> {{ user.email }}</p>
+            </div>
+            <i class="fas fa-user fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <div class="w-75 h-100">
+                    <h4 class="fs-3">Información</h4>
+                    <p>Se unió: {{ user.date_joined }}</p>
+                    <P>Último inicio de sesión: {{ user.last_login }}</P>
+            </div>
+            <i class="fas fa-info fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <div class="w-75">
+                    <h4 class="fs-3">Contacto</h4>
+                    <p class="fs-6"></p>
+                    <P>Teléfono: {{ user.phonenumber }}</P>
+            </div>
+            <i class="fa-solid fa-address-book fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <div class="w-75">
+                    <h4 class="fs-3">Acciones</h4>
+                    <p class="fs-6"></p>
+                    <a href="{% url 'dimpro:staff_profile_edit' user.id %}" class="primary-text grow">
+                        <p><i class="fa-solid fa-pen-to-square mx-2"></i>Editar Perfil </p>
+                    </a>
+                    <a href="{% url 'dimpro:staff_changepw' user.id %}" class="primary-text grow">
+                        <p><i class="fa-solid fa-key mx-2"></i>Cambiar Contraseña </p>
+                    </a>
+                    <a href="{% url 'dimpro:logout' %}" class="text-danger grow">
+                        <p><i class="fa-solid fa-xmark mx-2"></i>Cerrar Sesión </p>
+                    </a>
+                    
+            </div>
+            <i class="fa-solid fa-flag fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

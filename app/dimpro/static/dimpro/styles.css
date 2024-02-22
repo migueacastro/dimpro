@@ -30,6 +30,9 @@ a {
 .red-bg {
     background-color: rgb(226, 200, 116) !important;
 }
+.red-red-bg {
+    background-color: rgb(206, 95, 95);
+}
 .grow {
     transition: all .2s ease-in-out;
 }
