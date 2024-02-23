@@ -32,11 +32,7 @@
                                 <input name="user_id" type="hidden" value="{{ user.id }}">
                                 
                                 <label for="client">Cliente</label>
-                                <select name="client_id" id="client" required class="form form-control w-50 mb-4">
-                                    {% for client in clients %}
-                                    <option value="{{ client.id }}">{{ client.name }}</option>
-                                    {% endfor %}
-                                </select>
+                                <input onchange="verify()" name="client_id" id="client_input" type="text" list="contacts" required class="form form-control w-50 mb-4">
                                 <p>No encuentras a un cliente? <a href="https://mail.google.com/mail/?view=cm&fs=1&to=dimproiluminación@gmail.com&su=Solicitud de adición de cliente&body=Solicito la adición de un cliente a la aplicación&bcc=luisencastro@gmail.com" target="_blank">solicita la adición de uno.</a></p>
                             </div>
                             
@@ -45,6 +41,11 @@
                                 <button type="submit" class="grow btn btn-primary btn-lg btn-block w-20 mb-2 mt-2 fs-6">Crear</button>
                             </div>
                             
+                            <datalist id="contacts">
+                                {% for client in clients %}
+                                    <option value="{{ client.name }}"></option>
+                                    {% endfor %}
+                            </datalist>
                         </form>
                     </div>
                 </div>
@@ -52,5 +53,27 @@
         </div>
     </div>
 </section>
+<script>
+        function verify() {
+            var input = document.getElementById('client_input');
+            var valor = input.value;
+            var datalist = document.getElementById('contacts');
+            var options = datalist.options;
+            var exists = false;
 
+            for (var i = 0; i < options.length; i++) {
+                if (valor == options[i].value) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists && valor !== '') {
+                input.value = '';
+                input.placeholder = 'No existe el cliente';
+            } else {
+                input.placeholder = '';
+            }
+        }
+</script>
 {% endblock %}

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
-from .models import User, Order, Product, Order_Product, Client, AlegraUser
+from .models import User, Order, Product, Order_Product, Contact, AlegraUser
 from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm, AlegraUserForm
 from .decorators import only_for
 from dimpro.management.commands.updatedb import update
@@ -610,7 +610,7 @@ def client_orders_add(request, id):
     
     if request.method == 'POST':
         user_id = User.objects.get(id = request.POST.get('user_id'))                   
-        client_id = Client.objects.get(id = request.POST.get('client_id'))
+        client_id = Contact.objects.get(name = request.POST.get('client_id'))
 
         status = 'pendiente'
 
@@ -619,7 +619,7 @@ def client_orders_add(request, id):
         return HttpResponseRedirect(f'/app/client/order/edit/{new_order.id}/')
 
     user = request.user
-    list_of_clients = Client.objects.all()
+    list_of_clients = Contact.objects.all()
     return render(request, 'dimpro/client/client_create_order.html', {
         'clients': list_of_clients, 'user':user})
 
@@ -684,3 +684,14 @@ def client_order_delete(request, id):
     order.delete()
     messages.success(request,'Pedido eliminado exitosamente.')
     return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+
+@only_for('staff')
+def list_contacts_all(_request):
+    contacts = Contact.objects.all()
+    data = {'contacts': []}
+    for contact in contacts:
+        contact_dict = {
+            'name': contact.id,
+        }
+        data['contacts'].append(contact_dict)
+    return JsonResponse(data)
