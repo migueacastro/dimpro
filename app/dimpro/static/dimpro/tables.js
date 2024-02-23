@@ -246,7 +246,7 @@ const listOrderProducts=async()=>{
         
         let url = window.location.href;
         let parts = url.split('/');
-        let lastNumber = parts[parts.length - 1];
+        let lastNumber = parts[parts.length - 2];
         response=await fetch(`/app/list_products_order/order/${lastNumber}`);
         const data= await response.json();
 
