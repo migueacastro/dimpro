@@ -685,6 +685,15 @@ def client_order_delete(request, id):
     messages.success(request,'Pedido eliminado exitosamente.')
     return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
 
+
+@only_for('operator')
+def staff_order_delete(request, id):
+    order = Order.objects.get(id=id)
+    order.delete()
+    messages.success(request,'Pedido eliminado exitosamente.')
+    return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+
+
 @only_for('staff')
 def list_contacts_all(_request):
     contacts = Contact.objects.all()

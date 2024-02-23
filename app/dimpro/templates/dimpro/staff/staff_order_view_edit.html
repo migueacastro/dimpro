@@ -42,6 +42,11 @@
                     <div class="col-12 col-md-12 mt-4 text-end d-flex justify-content-center">
                         <button onclick="addRow();"type="button" id="add-product"class="mx-2 grow btn btn-primary"><i class="fa-solid fa-plus mx-1"></i>Añadir item</button>
                         <button type="submit" class="mx-2 grow btn btn-primary"><i class="fa-solid fa-pen-to-square mx-1"></i>Guardar</button>
+                        {% if user.is_operator %}
+                        <a href="{% url 'dimpro:delete_order' order.id %}">
+                            <button style="background-color: rgb(206, 95, 95) !important; border: none;" type="button" class=" mx-2 btn btn-primary grow"><i class="fa-solid fa-trash mx-1"></i></button>
+                        </a>
+                        {% endif %}
                         {% include 'dimpro/staff/add_order.html' %}
                     </div>
                     <datalist id="product-selection">

@@ -95,6 +95,7 @@ class AlegraUser(models.Model):
 class Contact(models.Model):
     name = models.CharField(max_length=128)
     date_joined = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(null = False)
     def __str__(self):
         return str(self.id)
     

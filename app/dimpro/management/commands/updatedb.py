@@ -39,6 +39,7 @@ class Command(BaseCommand):
                 item = row['name']
                 details = row['description']
                 reference = row['reference']
+
                 try:
                     available_quantity = row['inventory']['availableQuantity']
                 except KeyError as e:
@@ -82,7 +83,13 @@ class Command(BaseCommand):
             for row in contacts:
                 name = row['name']
                 
-                
+                # Check if contact is in alegra db
+                list_contacts = Contact.objects.all()
+                for contact in list_contacts:
+                    if not contact in row:
+                        row['active'] = False
+                    row['active'] = True
+        
                 try:
                     selectedcontact = Contact.objects.get(name=name)
                 except ObjectDoesNotExist:
@@ -166,6 +173,14 @@ def update():
             
             for row in contacts:
                 name = row['name']
+
+                # Check if contact is in alegra db
+                list_contacts = Contact.objects.all()
+                for contact in list_contacts:
+                    if not contact in row:
+                        row['active'] = False
+                    row['active'] = False
+                    
                 try:
                     selectedcontact = Contact.objects.get(name=name)
                 except ObjectDoesNotExist:

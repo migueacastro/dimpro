@@ -36,6 +36,7 @@ urlpatterns = [
     path("staff/change_token/", views.staff_changetk, name='staff_changetk'),
     path("staff/updatedb/", views.staff_updatedb, name='update_db'),
     path("staff/changestatus/<int:id>/", views.staff_changestatus, name='change_status'),
+    path("staff/order/delete/<int:id>/", views.staff_order_delete, name='delete_order'),
     
     # CLIENT
     path("", views.index, name='index'),
