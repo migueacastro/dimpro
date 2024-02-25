@@ -30,6 +30,8 @@
                             {% csrf_token %}
                             <div class="edit-user-form">
                                 
+                                {{ form.opassword.label }}
+                                {{ form.opassword }}
                                 {{ form.npassword.label }}
                                 {{ form.npassword }}
                                 {{ form.cnpassword.label }}

@@ -1,5 +1,6 @@
 from typing import Any
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, timezone
+from django.contrib.auth.hashers import check_password
 from django.db import models
 from django.db.models import Count
 from phonenumber_field.modelfields import PhoneNumberField
@@ -75,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Product(models.Model):
     item = models.CharField(max_length=64, unique=False)
     id = models.AutoField(primary_key=True)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
     details = models.CharField(max_length=128, null = True)
     reference = models.CharField(max_length=64, unique=True, null = True)
     available_quantity = models.IntegerField(validators = [
@@ -107,6 +109,7 @@ class Order(models.Model):
     ])
     client_id = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='orders')
     date = models.DateTimeField(auto_now_add=True)
+    total = models.DecimalField(max_digits=7, decimal_places=2)
     def product_categories(self):
         return Order_Product.objects.filter(order_id=self.id).count()
     
@@ -119,8 +122,13 @@ class Order_Product(models.Model):
     id = models.AutoField(primary_key=True)
     order_id =  models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orders')
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
+    cost = models.DecimalField(max_digits=7,decimal_places=2)
     quantity = models.IntegerField(validators = [
         MinValueValidator(1)
     ])
     def __str__(self):
         return str(self.id)
+    @property
+    def price(self):
+        return self.product_id.price
+    

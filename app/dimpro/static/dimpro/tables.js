@@ -258,6 +258,8 @@ const listOrderProducts=async()=>{
                 <td>${product.name}</td>
                 <td>${product.reference}</td>
                 <td>${product.quantity}</td>
+                <td>${product.price}$</td>
+                <td>${product.cost}$</td>
             </tr>
             `;
             
@@ -307,11 +309,13 @@ const listOrderProductsEdit=async()=>{
                 <td id="id-${index}">${id}</td>
                 <td>
                     <input id="item-${index}" required class="form-control" 
-                    onchange="setInputValue('item-${index}', product_data); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}'); verify();"
+                    onchange="setInputValue('item-${index}', product_data); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}', 'price-${index}', 'cost-${index}'); verify();"
                     type="text" list="product-selection" value="${product.name}"</input></td>
                 <td id="reference-${index}">${reference}</td>
                 <td><input id="item-q-${index}" required  type="number" class="form-control" min="1" max="${product['available-quantity']}" value="${product.quantity}"></input></td>
                 <td id="aq-${index}">${product['available-quantity']}</td>
+                <td id="price-${index}">${product.price}$</td>
+                <td id="cost-${index}">${product.price * document.getElementById('item-q-'+ index).value}$</td>
                 <td><i class="fa-solid fa-xmark grow" onclick="deleteRow(${index});"></i></td>
             </tr>
             `;
@@ -396,12 +400,14 @@ function verify() {
 
 
 
-async function changeValues (id, reference, aq, q, name) {
+async function changeValues (id, reference, aq, q, name, price, cost) {
     let value = document.getElementById(name).value;
     let v1 = "";
     let v2 = "";
     let v3 = "";
     let v4 = "";
+    let v5 = "";
+    let v6 = "";
     let response = await fetch("/app/list_products/");
     let product_search = await response.json();
     product_search.products.forEach((product) => {
@@ -410,6 +416,8 @@ async function changeValues (id, reference, aq, q, name) {
             v2 = product.reference;
             v3 = product['available_quantity'];
             v4 = 1;
+            v5 = product.price;
+            v6 = product.cost;
         }
         
     });
@@ -447,7 +455,7 @@ function addRow() {
     let cell5 = document.createElement('td');
     cell5.id = `aq-${index}`;
     let input1 = document.createElement('input');
-    let cell6 = document.createElement('td');
+    let cell8 = document.createElement('td');
     input1.id = 'item-' + index;
     input1.required = true;
     input1.className = 'form-control';
@@ -456,7 +464,7 @@ function addRow() {
     input1.value = '';
     input1.onchange = function() {
         setInputValue('item-' + index, product_data);
-        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
+        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index, 'price-' + index, 'cost-' + index);
         verify(index);  // Pasar 'index' como parámetro
     };
     
@@ -485,6 +493,8 @@ function addRow() {
     row.appendChild(cell4);
     row.appendChild(cell5);
     row.appendChild(cell6);
+    row.appendChild(cell7);
+    row.appendChild(cell8);
     table.appendChild(row);
 }
 

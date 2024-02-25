@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from .models import User, Order, Product, Order_Product, Contact, AlegraUser
-from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm, AlegraUserForm
+from .forms import LoginForm, UserRegisterForm, UserEditForm, ChangePasswordForm, AlegraUserForm, CheckOperatorPasswordForm
 from .decorators import only_for
 from dimpro.management.commands.updatedb import update
 import json
@@ -246,7 +246,8 @@ def list_orders_user(_request, id):
             'client_name': order.client_id.name,
             'date': order.date.strftime('%d %B %Y %H:%M'),
             'status': order.status.capitalize(),
-            'products': order.product_categories()
+            'products': order.product_categories(),
+            'total': order.total
         }
         data['orders'].append(order_dict)
     return JsonResponse(data)
@@ -279,7 +280,8 @@ def list_products_for_order(_request, id):
             'name': product.product_id.item,
             'reference': product.product_id.reference,
             'quantity': product.quantity,
-            'available-quantity': product.product_id.available_quantity
+            'available-quantity': product.product_id.available_quantity,
+            'cost': product.cost
         }
         data['products'].append(order_dict)
     return JsonResponse(data)
@@ -330,6 +332,7 @@ def list_products(_request):
             'item': product.item,
             'details': product.details,
             'reference': product.reference,
+            'price': product.price,
             'available_quantity': product.available_quantity
         }
         data['products'].append(product_dict)
@@ -405,10 +408,15 @@ def staff_changepw(request, id):
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
             
-            
+            usertocheck = User.objects.get(id=request.user.id)
+            opassword = form.cleaned_data['opassword']
             npassword = form.cleaned_data['npassword']
             cnpassword = form.cleaned_data['cnpassword']
 
+            if not usertocheck.check_password(opassword):
+                return render(request, 'dimpro/staff/staff_register.html', {
+                    'message': 'Contraseña incorrecta.', 'form':form
+                })
             if npassword != cnpassword:
                 return  render(request, 'dimpro/staff/staff_changepw.html', {
                 'message': 'Las nuevas contraseñas deben ser iguales.',
@@ -419,7 +427,7 @@ def staff_changepw(request, id):
                 return render(request, 'dimpro/staff/staff_register.html', {
                     'message': 'La contraseña debe tener al menos 8 caracteres.', 'form':form
                 })
-            if not any(c.isaplha() for c in npassword):
+            if not any(c.isalpha() for c in npassword):
                 return render(request, 'dimpro/staff/staff_register.html', {
                     'message': 'La contraseña debe contener letras del alfabeto.', 'form':form
                 })
@@ -704,3 +712,29 @@ def list_contacts_all(_request):
         }
         data['contacts'].append(contact_dict)
     return JsonResponse(data)
+
+@only_for('operator')
+def verify_password(request):
+    user = request.user
+    if request.method == 'POST':
+        form = CheckOperatorPasswordForm(request.POST)
+        usertocheck = User.objects.get(id=user.id)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            if usertocheck.check_password(password):
+                return HttpResponseRedirect(reverse('dimpro:staff_changetk'))
+            else:
+                return render(request, 'dimpro/staff/staff_authenticate.html', {
+                    'user': request.user,
+                    'message': 'Contraseña incorrecta.',
+                    'form': form
+                })
+        return render(request, 'dimpro/staff/staff_authenticate.html', {
+                    'user': request.user,
+                    'form': form
+                })
+    return render(request, 'dimpro/staff/staff_authenticate.html', {
+        'user': request.user,
+        'form': CheckOperatorPasswordForm()
+    })

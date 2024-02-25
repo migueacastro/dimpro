@@ -137,7 +137,7 @@ a {
     width: auto;
 }
 
-.row .dt-row {
+.dt-row {
     margin-left: auto;
     margin-right: auto;
     overflow-x: auto !important;
@@ -159,12 +159,29 @@ a {
     padding-left: 0 !important;
 
 }
-
+.input-extend {
+    width: 50%;
+}
 @media (max-width: 767px) and (orientation: landscape) {
     #wrapper.toggled #sidebar-wrapper {
         margin-left: -38%;
     }
+    .input-extend {
+        width: 100%;
+    }
+    
+    
 }
+
+@media (max-width: 767px) {
+    .dataTables_wrapper .dt-row {
+        overflow: scroll !important;
+    }
+    .input-extend {
+        width: 100%;
+    }
+}
+
 @media (min-width: 1024px) {
     #sidebar-wrapper {
         margin-left: 0;

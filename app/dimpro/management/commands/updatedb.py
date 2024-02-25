@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 item = row['name']
                 details = row['description']
                 reference = row['reference']
-
+                price = row['price'][0]['price']
                 try:
                     available_quantity = row['inventory']['availableQuantity']
                 except KeyError as e:
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 
                     selecteditem.reference = reference
                     selecteditem.available_quantity = available_quantity
-                    
+                    selecteditem.price = price
 
                     selecteditem.save()
                     self.stdout.write(self.style.SUCCESS('Sucessfully updated item "%s"' % reference))
@@ -134,6 +134,7 @@ def update():
                 item = row['name']
                 details = row['description']
                 reference = row['reference']
+                price = row['price'][0]['price']
                 try:
                     available_quantity = row['inventory']['availableQuantity']
                 except KeyError as e:
@@ -150,7 +151,7 @@ def update():
                 
                     selecteditem.reference = reference
                     selecteditem.available_quantity = available_quantity
-                    
+                    selecteditem.price = price
 
                     selecteditem.save()
                 except ObjectDoesNotExist:
@@ -180,7 +181,7 @@ def update():
                     if not contact in row:
                         row['active'] = False
                     row['active'] = False
-                    
+
                 try:
                     selectedcontact = Contact.objects.get(name=name)
                 except ObjectDoesNotExist:

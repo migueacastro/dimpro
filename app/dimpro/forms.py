@@ -27,9 +27,13 @@ class UserEditForm(forms.Form):
 
 class ChangePasswordForm(forms.Form):
     
+    opassword = forms.CharField(label='Contraseña Vieja',widget=forms.PasswordInput(attrs={'class': 'form-control mb-2', 'placeholder':'Contraseña Vieja', 'name':'opassword'}))
     npassword = forms.CharField(label='Contraseña Nueva',widget=forms.PasswordInput(attrs={'class': 'form-control mb-2', 'placeholder':'Contraseña Nueva', 'name':'npassword'}))
     cnpassword = forms.CharField(label='Confirmar Contraseña',widget=forms.PasswordInput(attrs={'class': 'form-control mb-2', 'placeholder':'Confirmar Contraseña', 'name':'cnpassword'}))
 
 class AlegraUserForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control mb-2', 'placeholder':'Email', 'name':'email'}))
     token = forms.CharField(label='Token',widget=forms.TextInput(attrs={'class': 'form-control mb-2', 'placeholder':'Token', 'name':'token'}))
+
+class CheckOperatorPasswordForm(forms.Form):
+    password = forms.CharField(label='Contraseña',widget=forms.PasswordInput(attrs={'class': 'form-control mb-2', 'placeholder':'Contraseña', 'name':'password'}))

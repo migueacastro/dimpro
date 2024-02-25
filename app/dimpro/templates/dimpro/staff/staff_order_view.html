@@ -19,6 +19,7 @@
                     <h3 class="fs-4 mb-3">Cliente: {{ order.client_id.name }}</h3>
                     <h3 class="fs-4 mb-3">Vendedor: {{ seller.name }} {{ seller.last_name }}</h3>
                     <h3 class="fs-4 mb-4">Items: {{ order_categories }}</h3>
+                    <h3 class="fs-4 mb-4">Total: {{ order.total }}$</h3>
                     <p class="fs-5 mb-4">Fecha: {{ order.date }}</p>
                     
                     <a class="text-decoration-none"href="{% url 'dimpro:staff_client_view' seller.id %}"><h3 class="fs-5 primary-text">Email:  {{ seller.email }}</h3></a>
@@ -58,6 +59,8 @@
                                 <th>Item</th>
                                 <th>Referencia</th>
                                 <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Costo</th>
                             </tr>
                         </thead>  
                         <tbody id="tableBody_orders"></tbody>

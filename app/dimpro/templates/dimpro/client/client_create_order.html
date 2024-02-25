@@ -32,8 +32,8 @@
                                 <input name="user_id" type="hidden" value="{{ user.id }}">
                                 
                                 <label for="client">Cliente</label>
-                                <input onchange="verify()" name="client_id" id="client_input" type="text" list="contacts" required class="form form-control w-50 mb-4">
-                                <p>No encuentras a un cliente? <a href="https://mail.google.com/mail/?view=cm&fs=1&to=dimproiluminación@gmail.com&su=Solicitud de adición de cliente&body=Solicito la adición de un cliente a la aplicación&bcc=luisencastro@gmail.com" target="_blank">solicita la adición de uno.</a></p>
+                                <input onchange="verify()" name="client_id" id="client_input" type="text" list="contacts" required class="form form-control input-extend mb-4">
+                                <p>No encuentras a un cliente? <a href="mailto:dimproiluminacion@gmail.com ?subject=Solicitud de adición de cliente. &body=Nombre: %0D%0A Correo electrónico: %0D%0A RIF: %0D%0A Insertar imágen de documento RIF:" target="_blank">solicita la adición de uno.</a></p>
                             </div>
                             
                             
