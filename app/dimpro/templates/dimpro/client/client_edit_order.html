@@ -22,8 +22,10 @@
             </div>
             
             <div class="col mx-auto d-flex flex-column">
-                <form action="javascript:postData();" method="post"  onsubmit="window.location.href=`{% url 'dimpro:client_vieworder'  order.id %}`; ">
+                <form method="post" action="{% url 'dimpro:client_editorder' order.id %}"   onsubmit="postData();window.location.href=`{% url 'dimpro:client_vieworder'  order.id %}`; ">
                     <p style="display: none;" id="csrf">{{ csrf_token }}</p>
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ order.total }}" id="total-tosubmit" name="total-tosubmit">
                     <div class="table-responsive">
                         <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
                             <thead>
@@ -33,11 +35,17 @@
                                     <th>Referencia</th>
                                     <th>Cantidad</th>
                                     <th>Disponibilidad</th>
+                                    <th>Precio</th>
+                                    <th>Costo</th>
                                     <th></th>
                                 </tr>
                             </thead>  
                             <tbody id="tableBody_orders"></tbody>
                         </table>
+                        <div class="col-6 col-md-6 d-flex flex-row align-items-center justify-content-end">
+                            <h3 class="fs-4 mb-3 primary-text">Total: </h3>
+                            <h3 id="total" class="fs-4 mb-3 primary-text mx-2">{{ order.total }}$</h3>
+                        </div>
                     </div>
                     <div class="col-12 col-md-12 mt-4 text-end d-flex justify-content-center">
                         <button onclick="addRow();"type="button" id="add-product"class="mx-2 grow btn btn-primary"><i class="fa-solid fa-plus mx-1"></i>Añadir item</button>

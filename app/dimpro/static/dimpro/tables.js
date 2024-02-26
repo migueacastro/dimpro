@@ -246,8 +246,11 @@ const listOrderProducts=async()=>{
         
         let url = window.location.href;
         let parts = url.split('/');
-        let lastNumber = parts[parts.length - 2];
-        response=await fetch(`/app/list_products_order/order/${lastNumber}`);
+        let lastNumber = parts[parts.length - 1];
+        if (lastNumber === "") {
+            lastNumber = parts[parts.length - 2];
+        }
+        response=await fetch(`/app/list_products_order/order/${lastNumber}/`);
         const data= await response.json();
 
         let content=``;
@@ -275,6 +278,7 @@ var product_data;
 const listOrderProductsEdit=async()=>{
     try {
         let response;
+        document.getElementById('total').innerText = document.getElementById('total-tosubmit').value + '$';
         let product_search = await fetch("/app/list_products/");
         let url = window.location.href;
         let parts = url.split('/');
@@ -312,10 +316,10 @@ const listOrderProductsEdit=async()=>{
                     onchange="setInputValue('item-${index}', product_data); changeValues('id-${index}', 'reference-${index}', 'aq-${index}', 'item-q-${index}', 'item-${index}', 'price-${index}', 'cost-${index}'); verify();"
                     type="text" list="product-selection" value="${product.name}"</input></td>
                 <td id="reference-${index}">${reference}</td>
-                <td><input id="item-q-${index}" required  type="number" class="form-control" min="1" max="${product['available-quantity']}" value="${product.quantity}"></input></td>
+                <td><input id="item-q-${index}" required  type="number" class="form-control" min="1" max="${product['available-quantity']}" value="${product.quantity}" onfocus="changeNumbers('item-q-${index}', 'item-q-${index}', 'price-${index}', 'cost-${index}')"></input></td>
                 <td id="aq-${index}">${product['available-quantity']}</td>
                 <td id="price-${index}">${product.price}$</td>
-                <td id="cost-${index}">${product.price * document.getElementById('item-q-'+ index).value}$</td>
+                <td id="cost-${index}">${(parseDollar(product.price*product.quantity))}$</td>
                 <td><i class="fa-solid fa-xmark grow" onclick="deleteRow(${index});"></i></td>
             </tr>
             `;
@@ -329,6 +333,7 @@ const listOrderProductsEdit=async()=>{
     } catch(ex) {
         console.log(ex);
     }
+    updateTotal();
 };
 var product_data;
 var inputId;
@@ -336,6 +341,8 @@ var lastSelectedItem;
 function setInputValue(input, product_data) {
     inputId = input;
     var input = document.getElementById(inputId);
+    id = input.id.charAt(input.id.length - 1);
+    
     var valor = input.value;
     var datalist = document.getElementById('product-selection');
 
@@ -359,6 +366,8 @@ function setInputValue(input, product_data) {
                 console.log('El producto ya existe en la tabla');
                 input.value = '';
                 input.placeholder = 'El producto ya existe';
+                document.getElementById('price-'+id).innerText = '';
+                document.getElementById('cost-'+id).innerText = '';
                 return;  // Termina la ejecución de la función aquí
             }
             if (item !== null && item !== '' && i == inputId.charAt(inputId.length -1)) {
@@ -407,7 +416,6 @@ async function changeValues (id, reference, aq, q, name, price, cost) {
     let v3 = "";
     let v4 = "";
     let v5 = "";
-    let v6 = "";
     let response = await fetch("/app/list_products/");
     let product_search = await response.json();
     product_search.products.forEach((product) => {
@@ -417,7 +425,6 @@ async function changeValues (id, reference, aq, q, name, price, cost) {
             v3 = product['available_quantity'];
             v4 = 1;
             v5 = product.price;
-            v6 = product.cost;
         }
         
     });
@@ -426,8 +433,63 @@ async function changeValues (id, reference, aq, q, name, price, cost) {
     document.getElementById(aq).innerText = v3;
     document.getElementById(q).value = v4;
     document.getElementById(q).max = v3;
+    if (v5 === "") {
+        document.getElementById(price).innerText = '';
+        document.getElementById(cost).innerText = '';
+    }
+    else {
+        document.getElementById(price).innerText = parseDollar(v5) + '$';
+        document.getElementById(cost).innerText = parseDollar(v5) + '$';
+    }
+    updateTotal();
 }
 
+async function changeNumbers (id, q, price, cost) {
+    
+    
+
+    input = document.getElementById(id);
+    input.addEventListener('change', function() {
+        let v4 = document.getElementById(q).value;
+        let v5 = document.getElementById(price).innerText; 
+        let v6 = (parseDollar(v5) * parseDollar(v4));
+        if (isNaN(v6)) {
+            document.getElementById(cost).innerText = '';
+        }
+        else {
+            document.getElementById(cost).innerText = parseDollar(v6)+'$';
+        }
+        
+        updateTotal();
+    }) 
+}
+
+function parseDollar(n) {
+    return (parseFloat(n.toString().replace(/\$/,'')).toFixed(2));
+}
+
+function updateTotal(n) {
+    let table = document.getElementById('tableBody_orders');
+    let total = 0;
+        for (let i =  0; i < table.rows.length; i++) {
+            if (document.getElementById(i).style.display === 'none') {
+                if (document.getElementById('cost-d-'+i)) {
+                    numbertosum = -(parseFloat(parseDollar(document.getElementById('cost-d-'+i).innerText)));
+                }
+                continue;
+            }
+            else {
+                numbertosum = parseFloat(parseDollar(document.getElementById('cost-'+i).innerText));
+            }
+            
+            if (isNaN(numbertosum)) {
+                continue;
+            }
+            total = parseFloat(total) + numbertosum;
+        };
+    document.getElementById('total-tosubmit').value = parseDollar(total);
+    document.getElementById('total').innerText = parseDollar(total)+'$';
+}
 function addRow() {
 
     let index = document.getElementById('tableBody_orders').rows.length;
@@ -455,6 +517,10 @@ function addRow() {
     let cell5 = document.createElement('td');
     cell5.id = `aq-${index}`;
     let input1 = document.createElement('input');
+    let cell6 = document.createElement('td');
+    cell6.id = `price-${index}`;
+    let cell7 = document.createElement('td');
+    cell7.id = `cost-${index}`;
     let cell8 = document.createElement('td');
     input1.id = 'item-' + index;
     input1.required = true;
@@ -476,16 +542,18 @@ function addRow() {
     input2.className = 'form-control';
     input2.min = '1';
     input2.value = '';
-
+    input2.onchange = function () {
+        changeNumbers('item-q-' + index, 'item-q-' + index, 'price-' + index, 'cost-' + index);
+    }
     let icon = document.createElement('i');
     icon.className = 'fa-solid fa-xmark';
     icon.onclick = function() {
         deleteRow(index);
     };
-
+    
     cell2.appendChild(input1);
     cell4.appendChild(input2);
-    cell6.appendChild(icon);
+    cell8.appendChild(icon);
 
     row.appendChild(cell1);
     row.appendChild(cell2);
@@ -496,6 +564,7 @@ function addRow() {
     row.appendChild(cell7);
     row.appendChild(cell8);
     table.appendChild(row);
+    
 }
 
 
@@ -513,13 +582,14 @@ function duplicateRow(id) {
     clonedRow.querySelector('#item-' + id).id = 'item-' + index;
     clonedRow.querySelector('#item-' + index).onchange = function() {
         setInputValue('item-' + id, product_data);
-        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index);
+        changeValues('id-' + index, 'reference-' + index, 'aq-' + index, 'item-q-' + index, 'item-' + index, 'price-' + index, 'cost-' + index);
         verify();
     };
     clonedRow.querySelector('#reference-' + id).id = 'reference-' + index;
 
     clonedRow.querySelector('#item-q-' + id).id = 'item-q-' + index;
-
+    clonedRow.querySelector('#price-' + id).id = 'price-' + index;
+    clonedRow.querySelector('#cost-' + id).id = 'cost-' + index;
     clonedRow.querySelector('#aq-' + id).id = 'aq-' + index;
     input2 = clonedRow.querySelector('#item-' + index);
     input2.removeAttribute('required');
@@ -530,7 +600,7 @@ function duplicateRow(id) {
     input.removeAttribute('required');
     clonedRow.style.display = 'none'; 
     originalRow.parentNode.appendChild(clonedRow);
-
+    updateTotal();
 }
 
 function deleteRow(id) {
@@ -542,7 +612,9 @@ function deleteRow(id) {
     document.getElementById('item-q-' + originalRow.id).setAttribute('min', '0');
     document.getElementById('item-q-' + originalRow.id).setAttribute('value', '0');
     document.getElementById('item-q-' + originalRow.id).removeAttribute('required');
+    document.getElementById('cost-' + originalRow.id).setAttribute('id', 'cost-d-'+ originalRow.id);
     originalRow.style.display = 'none';
+    updateTotal();
 }
 
 function postData() {
@@ -569,22 +641,28 @@ function postData() {
 
         let reference = document.getElementById('reference-' + rowIndex).value;
 
+        let cost;
         let quantity;
         if (row.style.display == 'none') {
             quantity = 0;
+            cost = 0;
         }
         else {
             quantity = document.getElementById('item-q-'+ rowIndex).value;
+            cost = parseDollar(document.getElementById('cost-' + rowIndex).innerText);
         }
         
+        
+
         let exists = data.some(function(el) {
             return el.item === item;
         })
-    
+        
         if (!exists || quantity > 0) {
             data.push({
                 item: item,
                 reference: reference,
+                cost: cost,
                 quantity: quantity
             });
         }
@@ -613,7 +691,7 @@ function postData() {
         });
     }
     else {
-        fetch(`/app/staff/view/order/edit/${lastNumber}`, {
+        fetch(`/app/staff/view/order/edit/${lastNumber}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

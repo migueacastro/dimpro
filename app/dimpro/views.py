@@ -281,6 +281,7 @@ def list_products_for_order(_request, id):
             'reference': product.product_id.reference,
             'quantity': product.quantity,
             'available-quantity': product.product_id.available_quantity,
+            'price': product.price,
             'cost': product.cost
         }
         data['products'].append(order_dict)
@@ -289,27 +290,34 @@ def list_products_for_order(_request, id):
 @only_for('staff')
 def edit_order(request, id):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        for row in data:
-            quantity = int(row['quantity'])
-            try: 
-                product = Product.objects.get(item=row['item'])
-                object = Order_Product.objects.get(order_id=id, product_id=product.id)
-                if quantity == 0:
-                    object.delete()
-                else:
-                    object.quantity = int(quantity)
-                    object.save()
-            except Order_Product.DoesNotExist:
-                if quantity == 0:
-                    continue
-                else:
-                    order = Order.objects.get(id=id)
+        try:
+            data = json.loads(request.body)
+            for row in data:
+                quantity = int(row['quantity'])
+                try: 
                     product = Product.objects.get(item=row['item'])
-                    Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                    if quantity == 0:
+                        object.delete()
+                    else:
+                        object.quantity = int(quantity)
+                        object.save()
+                except Order_Product.DoesNotExist:
+                    if quantity == 0:
+                        continue
+                    else:
+                        order = Order.objects.get(id=id)
+                        product = Product.objects.get(item=row['item'])
+                        Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+           
+        except Exception:
+            total = request.POST.get('total-tosubmit')
+            order = Order.objects.get(id=id)
+            order.total = total
+            order.save()
         messages.success(request, 'Pedido actualizado exitosamente.')
-        return HttpResponseRedirect(reverse('dimpro:control'))
-        
+        return HttpResponseRedirect(f'/app/staff/view/order/{id}')
+
     else:
         order = Order.objects.get(id=id)
         products = Product.objects.all()
@@ -635,28 +643,36 @@ def client_orders_add(request, id):
 @only_for('user')
 def client_orders_edit(request, id):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        for row in data:
-            quantity = int(row['quantity'])
-            try: 
-                product = Product.objects.get(item=row['item'])
-                object = Order_Product.objects.get(order_id=id, product_id=product.id)
-                if quantity == 0:
-                    object.delete()
-                else:
-                    object.quantity = int(quantity)
-                    object.save()
-            except Order_Product.DoesNotExist:
-                if quantity == 0:
-                    continue
-                else:
-                    order = Order.objects.get(id=id)
+        try:
+            data = json.loads(request.body)
+            for row in data:
+                quantity = int(row['quantity'])
+                cost = float(row['cost'])
+                try: 
                     product = Product.objects.get(item=row['item'])
-                    new_product = Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
-                    new_product.save(force_update=True)
+                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                    if quantity == 0:
+                        object.delete()
+                    else:
+                        object.quantity = int(quantity)
+                        object.cost = cost
+                        object.save()
+                except Order_Product.DoesNotExist:
+                    if quantity == 0:
+                        continue
+                    else:
+                        order = Order.objects.get(id=id)
+                        product = Product.objects.get(item=row['item'])
+                        new_product = Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity, cost=cost)
+                        new_product.save(force_update=True)
+        except Exception:
+            total = request.POST.get('total-tosubmit')
+            order = Order.objects.get(id=id)
+            order.total = total
+            order.save()
                     
         messages.success(request, 'Pedido actualizado exitosamente.')
-        return HttpResponseRedirect(f'/app/client/orders/{Order.objects.get(id=id).user_email.id}/')
+        return HttpResponseRedirect(f'/app/client/order/view/{id}/')
         
     else:
         order = Order.objects.get(id=id)
