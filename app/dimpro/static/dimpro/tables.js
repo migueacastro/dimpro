@@ -334,6 +334,34 @@ const listOrderProductsEdit=async()=>{
         console.log(ex);
     }
     updateTotal();
+
+    function facoNota() {
+        var label = document.getElementById('labelforcheck');
+        if  (label.innerText == 'Nota de entrega') {
+            if (document.getElementById('labelforcheck').innerText == 'Nota de entrega') {
+                document.getElementById('flexSwitchCheckDefault').checked = true;
+                
+            }
+            else {
+                document.getElementById('flexSwitchCheckDefault').checked = false;
+            }
+        }
+        
+    }
+
+    facoNota();
+    document.getElementById('flexSwitchCheckDefault').addEventListener('click', function () {
+        if (document.getElementById('labelforcheck').innerText == 'Nota de entrega') {
+            document.getElementById('labelforcheck').innerText = 'Factura';
+            document.getElementById('order-type').value = 'Factura';
+        }
+        else {
+            document.getElementById('labelforcheck').innerText = 'Nota de entrega';
+            document.getElementById('order-type').value = 'Nota de entrega';
+        }
+        updateTotal()
+    }, facoNota());
+    
 };
 var product_data;
 var inputId;
@@ -471,22 +499,25 @@ function parseDollar(n) {
 function updateTotal(n) {
     let table = document.getElementById('tableBody_orders');
     let total = 0;
-        for (let i =  0; i < table.rows.length; i++) {
-            if (document.getElementById(i).style.display === 'none') {
-                if (document.getElementById('cost-d-'+i)) {
-                    numbertosum = -(parseFloat(parseDollar(document.getElementById('cost-d-'+i).innerText)));
-                }
-                continue;
+    for (let i =  0; i < table.rows.length; i++) {
+        if (document.getElementById(i).style.display === 'none') {
+            if (document.getElementById('cost-d-'+i)) {
+                numbertosum = -(parseFloat(parseDollar(document.getElementById('cost-d-'+i).innerText)));
             }
-            else {
-                numbertosum = parseFloat(parseDollar(document.getElementById('cost-'+i).innerText));
-            }
-            
-            if (isNaN(numbertosum)) {
-                continue;
-            }
-            total = parseFloat(total) + numbertosum;
-        };
+            continue;
+        }
+        else {
+            numbertosum = parseFloat(parseDollar(document.getElementById('cost-'+i).innerText));
+        }
+        
+        if (isNaN(numbertosum)) {
+            continue;
+        }
+        total = parseFloat(total) + numbertosum;
+    };
+    if (document.getElementById('labelforcheck').innerText == 'Nota de entrega') {
+        total -= total * 10 / 100;
+    }
     document.getElementById('total-tosubmit').value = parseDollar(total);
     document.getElementById('total').innerText = parseDollar(total)+'$';
 }

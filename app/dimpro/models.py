@@ -110,6 +110,10 @@ class Order(models.Model):
     client_id = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='orders')
     date = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=7, decimal_places=2)
+    type = models.CharField(max_length=16,choices= [
+        ('nota de entrega', 'Nota de entrega'),
+        ('factura', 'Factura')
+    ])
     def product_categories(self):
         return Order_Product.objects.filter(order_id=self.id).count()
     

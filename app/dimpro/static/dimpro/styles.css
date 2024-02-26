@@ -193,7 +193,7 @@ a {
     }
 
     #wrapper.toggled #sidebar-wrapper {
-        margin-left: -23%;
+        margin-left: -22%;
     }
     .dataTables_filter, .dataTables_length, .dataTables_wrapper, .dataTables_paginate {
         .col-sm-12, .col-md-6 {
@@ -224,4 +224,8 @@ a {
     background-color: rgb(226, 200, 116) !important;
 
     color: white !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--main-bg-color);
 }

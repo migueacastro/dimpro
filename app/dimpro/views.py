@@ -24,7 +24,7 @@ def login_user(request):
                 login(request, user)
                 return HttpResponseRedirect(reverse('dimpro:index'))
             else:
-                return render(request, 'dimpro/login.html', {
+                return render(request, 'dimpro/public/login.html', {
                     'message': 'Email o contraseña no valido.', 'form':form
                 })
         else:
@@ -313,7 +313,9 @@ def edit_order(request, id):
         except Exception:
             total = request.POST.get('total-tosubmit')
             order = Order.objects.get(id=id)
+            type = request.POST.get('order-type').lower()
             order.total = total
+            order.type = type
             order.save()
         messages.success(request, 'Pedido actualizado exitosamente.')
         return HttpResponseRedirect(f'/app/staff/view/order/{id}')
@@ -630,7 +632,7 @@ def client_orders_add(request, id):
 
         status = 'pendiente'
 
-        new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente')
+        new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente', type='factura')
         new_order.save(force_update=True)
         return HttpResponseRedirect(f'/app/client/order/edit/{new_order.id}/')
 
@@ -667,8 +669,10 @@ def client_orders_edit(request, id):
                         new_product.save(force_update=True)
         except Exception:
             total = request.POST.get('total-tosubmit')
+            type = request.POST.get('order-type').lower()
             order = Order.objects.get(id=id)
             order.total = total
+            order.type = type
             order.save()
                     
         messages.success(request, 'Pedido actualizado exitosamente.')
