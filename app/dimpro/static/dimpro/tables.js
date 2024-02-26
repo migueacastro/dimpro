@@ -477,6 +477,33 @@ async function changeNumbers (id, q, price, cost) {
     
 
     input = document.getElementById(id);
+    input.addEventListener('keyup', function() {
+        let v4 = document.getElementById(q).value;
+        let v5 = document.getElementById(price).innerText; 
+        let v6 = (parseDollar(v5) * parseDollar(v4));
+        if (isNaN(v6)) {
+            document.getElementById(cost).innerText = '';
+        }
+        else {
+            document.getElementById(cost).innerText = parseDollar(v6)+'$';
+        }
+        
+        updateTotal();
+    })
+
+    input.addEventListener('input', function() {
+        let v4 = document.getElementById(q).value;
+        let v5 = document.getElementById(price).innerText; 
+        let v6 = (parseDollar(v5) * parseDollar(v4));
+        if (isNaN(v6)) {
+            document.getElementById(cost).innerText = '';
+        }
+        else {
+            document.getElementById(cost).innerText = parseDollar(v6)+'$';
+        }
+        
+        updateTotal();
+    }) 
     input.addEventListener('change', function() {
         let v4 = document.getElementById(q).value;
         let v5 = document.getElementById(price).innerText; 
@@ -500,6 +527,9 @@ function updateTotal(n) {
     let table = document.getElementById('tableBody_orders');
     let total = 0;
     for (let i =  0; i < table.rows.length; i++) {
+        if (!document.getElementById(i)) {
+            continue;
+        }
         if (document.getElementById(i).style.display === 'none') {
             if (document.getElementById('cost-d-'+i)) {
                 numbertosum = -(parseFloat(parseDollar(document.getElementById('cost-d-'+i).innerText)));
@@ -573,7 +603,7 @@ function addRow() {
     input2.className = 'form-control';
     input2.min = '1';
     input2.value = '';
-    input2.onchange = function () {
+    input2.onfocus = function () {
         changeNumbers('item-q-' + index, 'item-q-' + index, 'price-' + index, 'cost-' + index);
     }
     let icon = document.createElement('i');

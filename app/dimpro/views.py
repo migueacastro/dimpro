@@ -294,9 +294,10 @@ def edit_order(request, id):
             data = json.loads(request.body)
             for row in data:
                 quantity = int(row['quantity'])
+                cost = float(row['cost'])
                 try: 
                     product = Product.objects.get(item=row['item'])
-                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                    object = Order_Product.objects.get(order_id=Order.objects.get(id=id), product_id=product)
                     if quantity == 0:
                         object.delete()
                     else:
@@ -308,7 +309,8 @@ def edit_order(request, id):
                     else:
                         order = Order.objects.get(id=id)
                         product = Product.objects.get(item=row['item'])
-                        Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity)
+                        new_product = Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity, cost=cost)
+                        new_product.save(force_update=True)
            
         except Exception:
             total = request.POST.get('total-tosubmit')
@@ -632,7 +634,7 @@ def client_orders_add(request, id):
 
         status = 'pendiente'
 
-        new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente', type='factura')
+        new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente', type='Factura', total=0)
         new_order.save(force_update=True)
         return HttpResponseRedirect(f'/app/client/order/edit/{new_order.id}/')
 
@@ -652,7 +654,7 @@ def client_orders_edit(request, id):
                 cost = float(row['cost'])
                 try: 
                     product = Product.objects.get(item=row['item'])
-                    object = Order_Product.objects.get(order_id=id, product_id=product.id)
+                    object = Order_Product.objects.get(order_id=Order.objects.get(id=id), product_id=product)
                     if quantity == 0:
                         object.delete()
                     else:
@@ -667,7 +669,8 @@ def client_orders_edit(request, id):
                         product = Product.objects.get(item=row['item'])
                         new_product = Order_Product.objects.create(order_id=order, product_id=product, quantity=quantity, cost=cost)
                         new_product.save(force_update=True)
-        except Exception:
+        except Exception as  e:
+            print(e)
             total = request.POST.get('total-tosubmit')
             type = request.POST.get('order-type').lower()
             order = Order.objects.get(id=id)
