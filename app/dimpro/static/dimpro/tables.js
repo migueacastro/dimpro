@@ -94,11 +94,14 @@ const listOrders=async()=>{
         let parts = url.split('/');
         let lastNumber = parts[parts.length - 2];
         let isUser = document.body.dataset.isUser === 'true';
-        if (!isNaN(lastNumber) && lastNumber != "") {
-            response=await fetch(`/app/list_orders/user/${lastNumber}/`);
+        if (window.location.href.includes("/client/orders/") || window.location.href.includes("/staff/view/seller/")) {
+            response=await fetch(`/list_orders/user/${lastNumber}/`);
+        }
+        else if (window.location.href.includes("/staff/dashboard/")) {
+            response=await fetch(`/list_orders/`);
         }
         else {
-            response=await fetch('/app/list_orders/');
+            response=await fetch('/list_orders/all/');
         }
         
         const data= await response.json();
@@ -108,14 +111,14 @@ const listOrders=async()=>{
             if ((!isNaN(lastNumber) && lastNumber != "") || order.products > 0) {
                 if (isUser) {
                     content+=`
-                <tr class="clickable-row" data-href="/app/client/order/view/${order.id}">
+                <tr class="clickable-row" data-href="/client/order/view/${order.id}">
                     <td>${order.id}</td>`;
                 }
                 else {
                     content+=`
-                <tr class="clickable-row" data-href="/app/staff/view/order/${order.id}">
+                <tr class="clickable-row" data-href="/staff/view/order/${order.id}">
                     <td>${order.id}</td>`; }
-                if (isNaN(lastNumber)) {
+                if (!(window.location.href.includes("/client/orders/"))) {
                     content += `<td>${order.user_email}</td>`;
                 }
                 content+=`
@@ -145,7 +148,7 @@ const listOrders=async()=>{
 const listOrdersAll=async()=>{
     try {
         let response;
-        response=await fetch('/app/list_orders/all/');
+        response=await fetch('/list_orders/all/');
 
         
         const data= await response.json();
@@ -154,7 +157,7 @@ const listOrdersAll=async()=>{
         data.orders.forEach((order, index)=>{
             if (order.products > 0) {
                 content+=`
-                <tr class="clickable-row" data-href="/app/staff/view/order/${order.id}">
+                <tr class="clickable-row" data-href="/staff/view/order/${order.id}">
                     <td>${order.id}</td>
                     <td>${order.user_email}</td>
                     <td>${order.client_name}</td>
@@ -181,13 +184,13 @@ const listOrdersAll=async()=>{
 
 const listSellers=async()=>{
     try {
-        const response=await fetch('/app/list_sellers/');
+        const response=await fetch('/list_sellers/');
         const data= await response.json();
 
         let content=``;
         data.sellers.forEach((user, index)=>{
             content+=`
-                <tr class="clickable-row" data-href="/app/staff/view/seller/${user.id}">
+                <tr class="clickable-row" data-href="/staff/view/seller/${user.id}">
                     <td>${user.id}</td>
                     <td>${user.username}</td>
                     <td>${user.email}</td>
@@ -197,7 +200,7 @@ const listSellers=async()=>{
             let isOperator = document.body.dataset.isOperator === 'True';
             if (isOperator) {
                 content += `
-                    <td><a class="primary-text" href="/app/staff/delete/${user.id}">
+                    <td><a class="primary-text" href="/staff/delete/${user.id}">
                     <i class="fa-solid fa-trash-can"></i>
                     </a></td>`;
             }
@@ -211,18 +214,18 @@ const listSellers=async()=>{
 
 const listEmployees=async()=>{
     try {
-        const response=await fetch('/app/list_employees/');
+        const response=await fetch('/list_employees/');
         const data= await response.json();
 
         let content=``;
         data.employees.forEach((user, index)=>{
             content+=`
-                <tr class="clickable-row" data-href="/app/staff/view/seller/${user.id}">
+                <tr class="clickable-row" data-href="/staff/view/seller/${user.id}">
                     <td>${user.id}</td>
                     <td>${user.username}</td>
                     <td>${user.email}</td>
                     <td>${user.phonenumber}</td>
-                    <td><a class="primary-text" href="/app/staff/delete/${user.id}">
+                    <td><a class="primary-text" href="/staff/delete/${user.id}">
                     <i class="fa-solid fa-trash-can"></i>
                     </a></td>
                 </tr>
@@ -250,7 +253,7 @@ const listOrderProducts=async()=>{
         if (lastNumber === "") {
             lastNumber = parts[parts.length - 2];
         }
-        response=await fetch(`/app/list_products_order/order/${lastNumber}/`);
+        response=await fetch(`/list_products_order/order/${lastNumber}/`);
         const data= await response.json();
 
         let content=``;
@@ -279,11 +282,11 @@ const listOrderProductsEdit=async()=>{
     try {
         let response;
         document.getElementById('total').innerText = document.getElementById('total-tosubmit').value + '$';
-        let product_search = await fetch("/app/list_products/");
+        let product_search = await fetch("/list_products/");
         let url = window.location.href;
         let parts = url.split('/');
         let lastNumber = parts[parts.length - 2];
-        response=await fetch(`/app/list_products_order/order/${lastNumber}/`);
+        response=await fetch(`/list_products_order/order/${lastNumber}/`);
         product_data = await product_search.json();
         const data= await response.json();
 
@@ -444,7 +447,7 @@ async function changeValues (id, reference, aq, q, name, price, cost) {
     let v3 = "";
     let v4 = "";
     let v5 = "";
-    let response = await fetch("/app/list_products/");
+    let response = await fetch("/list_products/");
     let product_search = await response.json();
     product_search.products.forEach((product) => {
         if (product.item == value){
@@ -731,7 +734,7 @@ function postData() {
     }
     let isUser = document.body.dataset.isUser === 'true';
     if (isUser) {
-        fetch(`/app/client/order/edit/${lastNumber}/`, {
+        fetch(`/client/order/edit/${lastNumber}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -752,7 +755,7 @@ function postData() {
         });
     }
     else {
-        fetch(`/app/staff/view/order/edit/${lastNumber}/`, {
+        fetch(`/staff/view/order/edit/${lastNumber}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

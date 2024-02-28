@@ -320,7 +320,7 @@ def edit_order(request, id):
             order.type = type
             order.save()
         messages.success(request, 'Pedido actualizado exitosamente.')
-        return HttpResponseRedirect(f'/app/staff/view/order/{id}')
+        return HttpResponseRedirect(f'/staff/view/order/{id}')
 
     else:
         order = Order.objects.get(id=id)
@@ -355,7 +355,7 @@ def staff_profile(request,id):
     # AUTH
     user = request.user
     if request.user.id != id:
-        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+        return HttpResponseRedirect(f'/staff/profile/{request.user.id}/')
     return render(request, 'dimpro/staff/staff_profile.html')
 
 
@@ -363,7 +363,7 @@ def staff_profile(request,id):
 def staff_profile_edit(request, id):
     user = request.user
     if request.user.id != id:
-        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+        return HttpResponseRedirect(f'/staff/profile/{request.user.id}/')
     if request.method == 'POST':
         form = UserEditForm(request.POST)
         if form.is_valid():
@@ -397,7 +397,7 @@ def staff_profile_edit(request, id):
             user_to_edit.phonenumber = phonenumber
             user_to_edit.save()
             messages.success(request, 'Perfil editado exitosamente.')
-            return HttpResponseRedirect(f'/app/staff/profile/{id}/')
+            return HttpResponseRedirect(f'/staff/profile/{id}/')
         else:
             return render(request, 'dimpro/staff/staff_profile_edit.html', {
                 'form': form
@@ -415,7 +415,7 @@ def staff_profile_edit(request, id):
 def staff_changepw(request, id):
     user = request.user
     if request.user.id != id:
-        return HttpResponseRedirect(f'/app/staff/profile/{request.user.id}/')
+        return HttpResponseRedirect(f'/staff/profile/{request.user.id}/')
     if request.method == 'POST':
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
@@ -450,7 +450,7 @@ def staff_changepw(request, id):
             newuser = authenticate(request,username=user.email, password=npassword)
             login(request, newuser)
             messages.success(request, 'Contraseña actualizada exitosamente.')
-            return HttpResponseRedirect(f'/app/staff/profile/{id}/')
+            return HttpResponseRedirect(f'/staff/profile/{id}/')
         else:
             return render(request, 'dimpro/staff/staff_changepw.html', {
                 'form': form
@@ -590,7 +590,7 @@ def staff_changestatus(request, id):
         order.status = 'pendiente'
         order.save()
     messages.success(request, 'Estatus cambiado exitosamente')
-    return HttpResponseRedirect(f'/app/staff/view/order/{order.id}')
+    return HttpResponseRedirect(f'/staff/view/order/{order.id}')
 
 @only_for('user')
 def index(request):
@@ -603,7 +603,7 @@ def client_profile(request,id):
     # AUTH
     user = request.user
     if request.user.id != id:
-        return HttpResponseRedirect(f'/app/client/profile/{request.user.id}/')
+        return HttpResponseRedirect(f'/client/profile/{request.user.id}/')
     return render(request, 'dimpro/client/client_profile.html')
 
 
@@ -636,7 +636,7 @@ def client_orders_add(request, id):
 
         new_order = Order.objects.create(user_email=user_id, client_id = client_id, status='pendiente', type='Factura', total=0)
         new_order.save(force_update=True)
-        return HttpResponseRedirect(f'/app/client/order/edit/{new_order.id}/')
+        return HttpResponseRedirect(f'/client/order/edit/{new_order.id}/')
 
     user = request.user
     list_of_clients = Contact.objects.all()
@@ -679,7 +679,7 @@ def client_orders_edit(request, id):
             order.save()
                     
         messages.success(request, 'Pedido actualizado exitosamente.')
-        return HttpResponseRedirect(f'/app/client/order/view/{id}/')
+        return HttpResponseRedirect(f'/client/order/view/{id}/')
         
     else:
         order = Order.objects.get(id=id)
@@ -708,13 +708,13 @@ def client_order_delete(request, id):
     order = Order.objects.get(id=id)
     if order.status == 'preparado':
         messages.error(request, 'No se puede eliminar un pedido preparado.')
-        return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+        return HttpResponseRedirect(f'/client/orders/{order.user_email.id}/')
     if request.user.id != order.user_email.id:
         return HttpResponseRedirect(reverse('dimpro:index'))
     
     order.delete()
     messages.success(request,'Pedido eliminado exitosamente.')
-    return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+    return HttpResponseRedirect(f'/client/orders/{order.user_email.id}/')
 
 
 @only_for('operator')
@@ -722,7 +722,7 @@ def staff_order_delete(request, id):
     order = Order.objects.get(id=id)
     order.delete()
     messages.success(request,'Pedido eliminado exitosamente.')
-    return HttpResponseRedirect(f'/app/client/orders/{order.user_email.id}/')
+    return HttpResponseRedirect(f'/client/orders/{order.user_email.id}/')
 
 
 @only_for('staff')

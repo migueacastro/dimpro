@@ -1,4 +1,0 @@
-alegra==0.1.1
-Django==5.0.1
-django_phonenumber_field==7.3.0
-schedule==1.2.1
