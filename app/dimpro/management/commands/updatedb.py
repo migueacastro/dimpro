@@ -1,6 +1,6 @@
 import os
 from alegra.client import Client as c
-
+import logging
 from django.db.utils import IntegrityError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from dimpro.models import Product, AlegraUser, Contact
@@ -29,7 +29,7 @@ class Command(BaseCommand):
             i = 0
             while (True):
                 
-                dictu = client.list_items(start=(30 * i + 1), order="ASC")
+                dictu = client.list_items(start=(30 * i), order="ASC")
                 if not dictu:
                     break;
                 items = items + dictu
@@ -40,6 +40,10 @@ class Command(BaseCommand):
                 details = row['description']
                 reference = row['reference']
                 price = row['price'][0]['price']
+
+                if row['name'] == 'BOMBILLO LED 12W':
+                    self.stdout.write(self.style.SUCCESS('Precio de 12W "%s"' % price))
+
                 try:
                     available_quantity = row['inventory']['availableQuantity']
                 except KeyError as e:
@@ -74,7 +78,7 @@ class Command(BaseCommand):
             i = 0
             while (True):
                 
-                dictu = client.list_contacts(start=(30 * i + 1), order="ASC")
+                dictu = client.list_contacts(start=(30 * i), order="ASC")
                 if not dictu:
                     break;
                 contacts = contacts + dictu
@@ -88,7 +92,8 @@ class Command(BaseCommand):
                 for contact in list_contacts:
                     if not contact in row:
                         row['active'] = False
-                    row['active'] = True
+                    else:
+                        row['active'] = True
         
                 try:
                     selectedcontact = Contact.objects.get(name=name)
@@ -100,8 +105,15 @@ class Command(BaseCommand):
                     except Exception as e:
                         self.stdout.write(self.style.ERROR('Error with contact "%s": "%s"' % (name, e)))
                         continue
-
-        schedule.every(30).minutes.do(update)
+        def updateAttempt():
+            logging.basicConfig(level=logging.DEBUG, filename='logs/update.log')
+            try:
+                update()
+                return
+            except Exception as e:
+                logging.exception(e)
+                return
+        schedule.every(10).seconds.do(updateAttempt)
         while True:
             schedule.run_pending()
             time.sleep(1)
@@ -124,7 +136,7 @@ def update():
             i = 0
             while (True):
                 
-                dictu = client.list_items(start=(30 * i + 1), order="ASC")
+                dictu = client.list_items(start=(30 * i), order="ASC")
                 if not dictu:
                     break;
                 items = items + dictu
@@ -166,7 +178,7 @@ def update():
             i = 0
             while (True):
                 
-                dictu = client.list_contacts(start=(30 * i + 1), order="ASC")
+                dictu = client.list_contacts(start=(30 * i), order="ASC")
                 if not dictu:
                     break;
                 contacts = contacts + dictu

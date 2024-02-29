@@ -242,7 +242,7 @@ def list_orders_user(_request, id):
     for order in orderquery:
         order_dict = {
             'id': order.id,
-            'user_email': f'{user.email} {user.last_name}',
+            'user_email': f'{user.email}',
             'client_name': order.client_id.name,
             'date': order.date.strftime('%d %B %Y %H:%M'),
             'status': order.status.capitalize(),
