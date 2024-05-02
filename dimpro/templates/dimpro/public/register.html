@@ -1,0 +1,54 @@
+{% extends 'dimpro/public/auth_layout.html' %}
+
+{% block title %}
+    Registarse
+{% endblock %}
+
+{% block body %}
+    <h2 class="mb-5 mt-2">Registrarse</h2>
+    {% if message %}
+        <div class="mb-2 text-danger">{{ message }}</div>
+    {% endif %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="mb-2 text-danger">{{ error|escape }}</div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+    <form class="mt-2 mb-4 text-start"action="{% url 'dimpro:register' %}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class='col-md-6'>
+                {{ form.name.label }}
+                {{ form.name }}
+            </div>
+            <div class='col-md-6'>
+                {{ form.last_name.label }}
+                {{ form.last_name }}
+            </div>
+            
+            
+        </div>
+        {{ form.phonenumber.label }}
+        {{ form.phonenumber }}
+        {{ form.email.label }}
+        {{ form.email }}
+        {{ form.password.label }}
+        {{ form.password }}
+        {{ form.rpassword.label }}
+        {{ form.rpassword }}
+
+
+        <button type="submit" class="grow btn btn-primary btn-lg btn-block w-100 mb-2">Registrarse</button>
+        
+    </form>
+    
+    <p>¿Ya estás registrado? <a href="{% url 'dimpro:login_user' %}">Iniciar Sesión</a></p>
+    <a href="{% url 'dimpro:start' %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+          </svg>
+        Volver a inicio
+    </a>
+{% endblock %}

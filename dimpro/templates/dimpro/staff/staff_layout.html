@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="vapid-key" content="{{ vapid_key }}">
+        <meta name="token" content="{{ csrf_token }}">
+        {% if user %}
+            <meta name="user_id" content="{{ user.id}}">
+        {% endif %}
+
+
+        <!-- Bootstrap -->
+        
+        <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+        <script src="https://fastly.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <!-- DataTable.js -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" />
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+        <!-- Custom CSS --> 
+        <link rel="icon" type="image/jpg" href="{% static 'dimpro/favicon.jpg' %}">
+        <link rel="stylesheet" href="{% static 'dimpro/styles.css' %}">
+
+        <script src="{% static 'dimpro/registerSw.js'%}"></script>
+ 
+
+        
+       
+        <!-- Title -->
+        <title>{% block title %} {% endblock %}</title>
+        
+        
+    </head>
+    <body data-is-operator="{{ request.user.is_operator }}">
+        
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar -->
+            
+            <div class="bg-white" id="sidebar-wrapper">
+                <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase">
+                    <a href="{% url 'dimpro:control' %}" class="growt">
+                        <img class="mx-0 w-75 mb-2 mt-2"src="{% static 'dimpro/logodimpro.svg' %}" id="dimpro-sidebar-logo"alt="" >
+                    </a>
+                    
+                </div>
+
+                <hr class="w-75 mx-auto">
+                <div class="list-group list-group-flush my-3">
+                    <a href="{% url 'dimpro:control' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-house me-2"></i>Inicio
+                    </a>
+                    <a href="{% url 'dimpro:staff_orders' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-box me-2"></i>Pedidos
+                    </a>
+                    <a href="{% url 'dimpro:staff_clients' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-user-group me-2"></i>Vendedores
+                    </a>
+                    {% if user.is_operator %}
+                    <a href="{% url 'dimpro:staff_settings' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-gear me-2"></i>Configuración
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'dimpro:logout' %}" class="growt list-group-item list-group-item-action bg-transparent text-danger fw-bold">
+                        <i class="fas fa-xmark me-2"></i>Cerrar Sesión
+                    </a>
+                </div>
+                <div class="d-flex flex-column h-25 justify-content-end">
+                    <p class="text-center list-group-item">Hecho por <a class="primary-text" href="https://github.com/migueacastro" target="_blank">Miguel Castro <i class="fa-brands fa-github primary-text"></i></a></p>
+                </div>
+            </div>
+
+            <!-- End Sidebar -->
+
+            <div id="page-content-wrapper">
+
+                <nav class="navbar d-flex navbar-expand-lg navbar-light bg-transparent py-4 px-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <i class="fas fa-bars primary-text fs-4 me-3" id="menu-toggle"></i>
+                        <h2 class="fs-2 m-0 primary-text">{% block stitle %}{% endblock %}</h2>
+                    </div>
+    
+                    
+                    <div class="col-6 d-flex justify-content-end">
+                        <a class="nav-link dropdown-toggle text-wrap primary-text fw-bold text-sm-start" href="#" id="navbarDropdown"
+                                        role="button" data-bs-toggle="dropdown" aria-expanded="false" style="overflow-wrap: break-word !important;">
+                                        <i class="fas fa-user me-2"></i>{{ user.name }} {{ user.last_name }}
+                        </a>
+                        
+                        
+                                
+                        <ul class="dropdown-menu dropdown-menu-end w-25" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'dimpro:staff_profile' user.id %}">Perfil</a></li>
+                            {% if user.is_operator %}
+                            <li><a class="dropdown-item" href="{% url 'dimpro:staff_settings' %}">Configuracion</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item text-danger" href="{% url 'dimpro:logout' %}">Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+                    
+                    
+                </nav>
+                
+                <div class="container-fluid px-4 mb-5">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    {% block body %}{% endblock %}
+                    
+                    
+                </div>
+
+            </div>
+
+
+        </div>
+
+        
+        
+        
+        <script>
+            var el = document.getElementById("wrapper")
+            var togglebutton = document.getElementById("menu-toggle")
+
+            togglebutton.onclick = function () {
+                el.classList.toggle("toggled")
+                
+            }
+            
+        </script>
+        
+       
+    </body>
+    
+</html>

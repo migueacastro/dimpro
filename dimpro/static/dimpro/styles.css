@@ -1,0 +1,240 @@
+:root {
+    --main-bg-color:#0e4889; 
+    --main-text-color: #0e4889;
+    --second-text-color: #fff;
+    --second-bg-color: #4378da;
+    --third-text-color: #777777;
+}
+
+a {
+    text-decoration: none !important;
+}
+.btn-primary:hover {
+    background-color: var(--main-bg-color);
+}
+.primary-text {
+    color: var(--main-text-color)
+}
+.second-text {
+    color: var(--second-text-color)
+}
+.third-text {
+    color: var(--third-text-color)
+}
+.primary-bg {
+    background-color:  #0e4889 !important;
+}
+.secondary-bg {
+    background-color: var(--main-text-color);
+}
+.red-bg {
+    background-color: rgb(226, 200, 116) !important;
+}
+.red-red-bg {
+    background-color: rgb(206, 95, 95);
+}
+.grow {
+    transition: all .2s ease-in-out;
+}
+.grow:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+}
+
+.growt {
+    transition: all .2s ease-in-out;
+}
+.growt:hover {
+    transform: scale(1.05);
+}
+
+.rounded-full {
+    border-radius: 100%;
+}
+table {
+    overflow-x: scroll;
+}
+#wrapper {
+    overflow-x: hidden;
+    background-image: linear-gradient(
+        to right,
+        #d8eaff,
+        #f7fbff
+
+    )
+}
+.btn-primary {
+    background-color: var(--main-bg-color);
+}
+#sidebar-wrapper {
+    min-height: 100vh;
+    margin-left: -15rem;
+    transition: margin 0.25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#page-content-wrapper {
+    min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+#menu-toggle {
+    cursor: pointer;
+    transition: margin 2s ease-out;
+}
+
+.list-group-item {
+    color: var(--third-text-color);
+    border: none;
+    padding: 20px 30px;
+}
+
+.list-group-item.active {
+    color: var(--main-text-color);
+    background-color: transparent;
+    font-weight: bold;
+    border: none;
+}
+
+.edit-user-form {
+    width: 100% !important;
+}
+
+a {
+    text-decoration: none;
+}
+.pagination {
+    --bs-pagination-active-bg: var(--main-bg-color) !important;
+    --bs-pagination-active-border-color: var(--main-bg-color) !important;
+}
+
+.dataTables_length, .dataTables_filter {
+    display: flex;
+    justify-content: start;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 10px !important;
+    
+}
+
+.dataTables_length {
+    margin: 10px !important;
+}
+
+
+.dataTables_paginate .paging_simple_numbers {
+    width: auto;
+}
+
+.dt-row {
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: auto !important;
+    margin-bottom: 25px !important;
+
+}
+
+.dataTables_wrapper {
+    overflow:hidden;
+}
+
+.btn {
+    white-space: no-wrap !important;
+    overflow: hidden !important;
+    display: block !important;
+}
+
+.table-responsive .row>* {
+    padding-left: 0 !important;
+
+}
+.input-extend {
+    width: 50%;
+}
+@media (max-width: 767px) and (orientation: landscape) {
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: -38%;
+    }
+    .input-extend {
+        width: 100%;
+    }
+    
+    
+}
+
+@media (max-width: 767px) {
+    .dataTables_wrapper .dt-row {
+        overflow: scroll !important;
+    }
+    .input-extend {
+        width: 100%;
+    }
+}
+
+@media (min-width: 1024px) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: -22%;
+    }
+    .dataTables_filter, .dataTables_length, .dataTables_wrapper, .dataTables_paginate {
+        .col-sm-12, .col-md-6 {
+            padding: 0 !important;
+            margin: 0  !important;
+            box-sizing: border-box !important;
+            
+        }
+        
+    }
+    .dataTables_filter, .dataTables_length {
+        width: 50% !important;
+    }
+
+    .edit-user-form {
+        width: 50% !important;
+    }
+    
+    
+}
+
+.btn .preparado {
+    background-color:  #0e4889 !important;
+    color: white !important;
+}
+
+.btn-primary .pendiente {
+    background-color: rgb(226, 200, 116) !important;
+
+    color: white !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--main-bg-color);
+}
+
+#warningEditBtn {
+    width: fit-content !important;
+}
+
+#warningSaveBtn {
+    width: fit-content !important;
+    display: none;
+}

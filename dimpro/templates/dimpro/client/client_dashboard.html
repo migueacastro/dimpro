@@ -1,0 +1,64 @@
+{% extends 'dimpro/client/client_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Inicio
+{% endblock %}
+
+{% block stitle %}
+    Inicio
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">
+        
+        <div class="col-md-4">
+            <a href="{% url 'dimpro:client_addorder' user.id %}" class="text-decoration-none primary-text">
+                <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div>
+                    
+
+                            <h3 class="fs-2">Crear Pedido</h3>
+                    </div>
+                    <i class="fas fa-plus fs-1 primary-text p-3"></i>
+                </div>
+            </a>
+        </div>
+        
+        
+        <div class="col-md-4">
+            <a href="{% url 'dimpro:client_orders' user.id %}" class="text-decoration-none primary-text">
+                <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded"> 
+                    <div>                     
+                        <h3 class="fs-2">Pedidos</h3> 
+                    </div>
+                    <i class="fas fa-box fs-1 primary-text p-3"></i>
+                </div>
+            </a>
+        </div>
+            
+        
+        <div class="col-md-4">
+            <a href="{% url 'dimpro:client_profile' user.id %}" class="text-decoration-none primary-text">
+                <div class="h-100 grow p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div>            
+                            <h3 class="fs-2">Vendedor</h3>
+                            <p class="fs-5">{{ user.name }}</p>  
+                    </div>
+                    <i class="fas fa-user fs-1 primary-text p-3"></i>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+
+     <!-- Bootstrap -->
+     
+     <!-- jQuery -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+     <!-- DataTable.js -->
+     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+     <!-- Custom JS -->
+{% endblock %}

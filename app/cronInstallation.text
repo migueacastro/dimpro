@@ -1,0 +1,3 @@
+* * * * *  source /home/h5ip2aoq907h/.bashrc && source /home/h5ip2aoq907h/virtualenv/dimproapp/3.9/bin/activate  && python /home/h5ip2aoq907h/dimproapp/manage.py runcrons > /home/h5ip2aoq907h/dimproapp/cronjob.log
+
+source /home/h5ip2aoq907h/virtualenv/dimproapp/3.9/bin/activate && cd /home/h5ip2aoq907h/dimproapp

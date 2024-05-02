@@ -1,0 +1,43 @@
+{% extends 'dimpro/public/auth_layout.html' %}
+{% load static %}
+{% block title %}
+    Dimpro
+{% endblock %}
+
+{% block body %}
+
+{% if logout %}
+<script>
+    function unsubscribe() {
+        navigator.serviceWorker.ready
+        .then(function(registration) {
+            return registration.pushManager.getSubscription();
+        })
+        .then(function(subscription) {
+            if (subscription) {
+                return subscription.unsubscribe();
+            }
+        })
+        .catch(function(error) {
+            console.log('Error unsubscribing', error);
+        })
+        .then(function() {
+            console.log('User is unsubscribed.');
+        });
+    }
+    unsubscribe();
+</script>
+{% endif %}
+    <img class="mx-auto w-50 mb-5 mt-3"src="{% static 'dimpro/logodimpro.svg' %}" alt="">
+    <h2 class="mt-2 mb-5">Usuario</h2>
+    <a href="{% url 'dimpro:login_user' %}">
+        <button type="button" class="grow btn btn-primary btn-lg btn-block w-100 mb-3">Vendedor</button>
+    </a>
+    <a href="{% url 'dimpro:login_staff' %}">
+        <button type="button" class="grow btn btn-secondary btn-lg btn-block w-100 mb-3">Dimpro</button>
+    </a>
+    {% if message %}
+    <div class="mb-2 text-info">{{ message }}</div>
+    {% endif %}
+    
+{% endblock %}

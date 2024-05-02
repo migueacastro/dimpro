@@ -1,0 +1,133 @@
+{% extends 'dimpro/client/client_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block stitle %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-5">
+
+        <div class="col-md-12 col-12">
+            <div class="col-md-12 d-flex flex-row">
+                <div class="col-6 col-md-6  align-items-center">
+                    <h3 id="item-count"class="fs-4 mb-3 primary-text">Items: </h3>
+                </div>
+                <div class="d-flex justify-content-end w-100 mb-5">
+                    <form id="price-type" class="w-50">
+                        <label for="type" class="primary-text">Tipo de precio</label>
+                        <select name="type" class="form-select" id="select-ptype" onchange="updatePrices();">
+                            {% for price in pricetypes %}
+                                {% if order.pricetype and order.pricetype == price.name %}
+                                    <option value="{{ percentage }}" selected>{{ order.pricetype }}</option>
+                                {% elif price.default %}
+                                    <option value="{{ price.percentage }}" selected>{{ price.name }}</option>
+                                {% else %}
+                                    <option value="{{ price.percentage }}">{{ price.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col mx-auto d-flex flex-column">
+                <form id="edit-form" method="post" action="{% url 'dimpro:client_editorder' order.id %}"   onsubmit="postData();pushForm();window.location.href=`{% url 'dimpro:client_vieworder'  order.id %}`; ">
+                    <p style="display: none;" id="csrf">{{ csrf_token }}</p>
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ order.total }}" id="total-tosubmit" name="total-tosubmit">
+                    <input type="hidden" value="{{ order.pricetype }}" id="price-tosubmit" name="price-tosubmit">
+                    <div class="table-responsive">
+                        <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="50">ID</th>
+                                    <th>Item</th>
+                                    <th>Referencia</th>
+                                    <th>Cantidad</th>
+                                    <th>Disponibilidad</th>
+                                    <th>Precio</th>
+                                    <th>Costo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>  
+                            <tbody id="tableBody_orders"></tbody>
+                        </table>
+                        
+                    </div>
+
+                    <div class="col-12 col-md-12 mt-4 text-end d-flex justify-content-center">
+                        <button onclick="addRow();"type="button" id="add-product"class="mx-2 grow btn btn-primary"><i class="fa-solid fa-plus mx-1"></i>Añadir item</button>
+                        <button type="submit" class="mx-2 grow btn btn-primary"><i class="fa-solid fa-pen-to-square mx-1"></i>Guardar</button>
+                        <a href="{% url 'dimpro:client_deleteorder' order.id %}">
+                            <button style="background-color: rgb(206, 95, 95) !important; border: none;" type="button" class=" mx-2 btn btn-primary grow"><i class="fa-solid fa-trash mx-1"></i></button>
+                        </a>
+                    </div>
+                    
+                    <div class="flex-row d-flex">
+                        <div class="col-6 col-md-6 d-flex flex-row align-items-center justify-content-start w-50">
+                            
+                        </div>
+                        <div class="d-flex flex-column col-6 col-md-6 w-50">
+                            <div id="subtotal" class="d-flex flex-row align-items-center justify-content-end">
+                            
+                                <h3 class="fs-5 mb-3 primary-text">Subtotal: </h3>
+                                <h3 id="subtotal-v"  class="fs-5 mb-3 primary-text mx-2">$</h3>
+                            </div>
+                            <div id="iva" class="d-flex flex-row align-items-center justify-content-end">
+                            
+                                <h3 class="fs-5 mb-3 primary-text">+ I.V.A.: </h3>
+                                <h3 id="iva-v"  class="fs-5 mb-3 primary-text mx-2">$</h3>
+                            </div>
+                            <div class="d-flex flex-row align-items-center justify-content-end">
+                            
+                                <h3 class="fs-3 mb-3 primary-text">Total: </h3>
+                                <h3 id="total" class="fs-3 mb-3 primary-text mx-2">{{ order.total }}$</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if not note.note == "" %} 
+                        <div class="card my-3 p-3">
+                            <h4 class="primary-text">Recordatorio</h4>
+                            <div class="card-body" id="warning">
+                            {{ note.note|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <datalist id="product-selection">
+                        {% for product in products %}
+                            {% if product.reference and product.id and product.available_quantity %}
+                                <option value="{{product.item }}"></option>
+                            {% endif %}
+                        {% endfor %}
+                    </datalist>
+                </form>
+                
+            </div>
+        </div>   
+                
+    </div>
+    <!-- Bootstrap -->
+   
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- DataTable.js -->
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'dimpro/tables.js' %}"></script>
+    <script src="{% static 'dimpro/modify-table.js' %}"></script>
+    <script src="{% static 'dimpro/submit.js' %}"></script>
+    <script>
+    hasId=true;
+    editDataTable(listOrderProductsEdit);
+    
+    </script>
+
+{% endblock %}

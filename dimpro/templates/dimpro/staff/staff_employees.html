@@ -1,0 +1,53 @@
+{% extends 'dimpro/staff/staff_layout.html' %}
+
+{% load static %}
+{% block title %}
+    Empleados
+{% endblock %}
+
+{% block stitle %}
+    Empleados
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">
+        <div class="row my-5">
+            <h3 class="fs-4 mb-3 primary-text">Todos los empleados</h3>
+            <div class="col mx-auto">
+                <div class="table-responsive">
+                    <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th width="50">ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>  
+                        <tbody id="tableBody_orders"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-6 text-end d-flex justify-content-start">
+            <a href="{% url 'dimpro:staff_register' %}">
+                <button type="button" class="btn btn-primary grow"><i class="fa-solid fa-plus mx-1"></i> Registrar Empleado</button>
+            </a>
+        </div>
+    </div>
+    <!-- Bootstrap -->
+    
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- DataTable.js -->
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'dimpro/tables.js' %}"></script>
+    <script>
+    ShowDataTable(listEmployees);
+    </script>
+    
+
+{% endblock %}

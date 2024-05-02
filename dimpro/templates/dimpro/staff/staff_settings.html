@@ -1,0 +1,50 @@
+{% extends 'dimpro/staff/staff_layout.html' %}
+{% load static %}
+{% block title %}
+    Configuración 
+{% endblock %}
+
+{% block stitle %}
+    Configuración
+{% endblock %}
+
+{% block body %}
+<div class="row g-3 my-2">
+    
+    <div class="col-md-4">
+        <div class="grow p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <a href="{% url 'dimpro:staff_employees' %}">
+                <div class="w-75 h-100 primary-text">
+                    <h4 class="fs-5">Empleados</h4>
+                    
+            </div>
+            </a>
+            
+            <i class="fas fa-user-tie fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="grow p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <a href="{% url 'dimpro:staff_authenticate' %}">
+                <div class="w-75 primary-text">
+                    <h4 class="fs-5">Cambiar Token de Alegra</h4>
+                </div>
+                
+            </a>
+            <i class="fa-solid fa-flag fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="grow p-3 h-100 bg-white shadow-sm d-flex justify-content-around align-items center rounded align-items-center">
+            <a href="{% url 'dimpro:update_db' %}">
+                <div class="w-75 primary-text">
+                        <h4 class="fs-5">Actualizar base de datos</h4>
+                </div>
+            </a>
+            <i class="fa-solid fa-coins fs-1 primary-text p-3"></i>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

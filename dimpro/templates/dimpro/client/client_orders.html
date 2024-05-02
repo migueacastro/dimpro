@@ -1,0 +1,50 @@
+{% extends 'dimpro/client/client_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+   Pedidos
+{% endblock %}
+
+{% block stitle %}
+    Pedidos
+{% endblock %}
+
+{% block body %}
+
+        <div class="col md-4">
+            <h3 class="fs-4 mb-3 primary-text">Tus pedidos: {{ n_orders }}</h3>
+            <div class="col mx-auto">
+                <div class="table-responsive">
+                    <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th width="50">ID</th>
+                                <th>Cliente</th>
+                                <th>Items</th>
+                                <th>Estatus</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>  
+                        <tbody id="tableBody_orders"></tbody>
+                    </table>
+                </div>
+            </div>
+           
+            
+        </div>
+    </div>
+
+     <!-- Bootstrap -->
+     
+     <!-- jQuery -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+     <!-- DataTable.js -->
+     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+     <!-- Custom JS -->
+     <script src="{% static 'dimpro/tables.js' %}"></script>
+     <script>
+        ShowDataTable(listOrders);
+     </script>
+{% endblock %}

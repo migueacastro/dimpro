@@ -1,0 +1,88 @@
+{% extends 'dimpro/client/client_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block stitle %}
+    Pedido #{{ order.id }}
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-5">
+        <div class="col-my-5">
+            <div class=" p-3 bg-white shadow-sm d-flex justify-content-start align-items-center rounded">
+                <div class="mx-4">
+                    <h2 class="fs-2 primary-text mt-4 mb-4">Cliente: {{ client }}</h2>
+                    <h3 class="fs-4 mb-4">Items: {{ order_categories }}</h3>
+                    {% if order.pricetype %}
+                        <h3 class="fs-4 mb-4">Tipo de precio: {{ order.pricetype }}</h3>
+                    {% endif %}
+                    <h3 class="fs-4 mb-4">Total: {{ order.total }}$</h3>
+                    <p class="fs-5 mb-4">Fecha: {{ order.date }}</p>
+                </div>
+                
+                
+            </div>
+        </div>  
+
+        <div class="col-md-12 col-12">
+            <div class="col-md-12 d-flex flex-row">
+                <div class="col-6 col-md-6  align-items-center">
+                    <h3 class="fs-4 mb-3 primary-text">Items: {{ order_categories }}</h3>
+                </div>
+                <div class="col-6 col-md-6 text-end d-flex justify-content-end">
+                   
+                    {% if order.status == 'pendiente' %}
+                        <button style="background-color: rgb(226, 200, 116) !important; border: none;" type="button" class="btn btn-primary fs-6 mx-2">Pendiente</button>
+                        <a href="{% url 'dimpro:client_editorder' order.id  %}">
+                            <button type="button" class="btn btn-primary grow"><i class="fa-solid fa-pen-to-square mx-1"></i></button>
+                        </a>
+                    {% else %}
+                        <button type="button" class="btn btn-primary preparado fs-6 grow  mx-2">Preparado</button>
+                        
+                    {% endif %}
+                    <a href="{% url 'dimpro:order_export' order.id %}">
+                        <button type="button" class="btn btn-primary preparado fs-6 grow  mx-2"><i class="fa-solid fa-print"></i></button>
+                    </a>   
+                    
+                </div>
+            </div>
+            
+            <div class="col mx-auto">
+                <div class="table-responsive">
+                    <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th width="50">ID</th>
+                                <th>Item</th>
+                                <th>Referencia</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Costo</th>
+                            </tr>
+                        </thead>  
+                        <tbody id="tableBody_orders"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>   
+                
+    </div>
+    <!-- Bootstrap -->
+    
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- DataTable.js -->
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'dimpro/tables.js' %}"></script>
+    <script>
+    var hasId=true;
+    ShowDataTable(listOrderProducts);
+    </script>
+
+{% endblock %}

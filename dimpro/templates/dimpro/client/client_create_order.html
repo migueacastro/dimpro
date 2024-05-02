@@ -1,0 +1,58 @@
+{% extends 'dimpro/client/client_layout.html' %}
+{% load static %}
+{% block title %}
+    Crear Orden
+{% endblock %}
+
+{% block stitle %}
+    Crear Orden
+{% endblock %}
+
+{% block body %}
+<section>
+    <div class="container mt-5 pt-5">
+        <div class="row">
+            <div class="col-md-12 m-auto">
+                <div class="p-3 bg-white shadow-sm d-flex justify-content-start align-items-center rounded">
+                    <div class="text-start card-body">
+                        <h2 class="mb-5 mt-2">Crear Pedido</h2>
+                        {% if message %}
+                            <div class="mb-2 text-danger">{{ message }}</div>
+                        {% endif %}
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="mb-2 text-danger">{{ error|escape }}</div>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                        <form class="mt-2 mb-4 text-start"action="{% url 'dimpro:client_addorder' user.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="edit-user-form">
+                                <input name="user_id" type="hidden" value="{{ user.id }}">
+                                
+                                <label for="client">Cliente</label>
+                                <input onchange="verify()" name="client_id" id="client_input" type="text" list="contacts" required class="form form-control input-extend mb-4">
+                                <p>No encuentras a un cliente? <a href="mailto:dimproiluminacion@gmail.com ?subject=Solicitud de adición de cliente. &body=Nombre: %0D%0A Correo electrónico: %0D%0A RIF: %0D%0A Insertar imágen de documento RIF:" target="_blank">solicita la adición de uno.</a></p>
+                            </div>
+                            
+                            
+                            <div class="d-flex justify-content-end text-end">
+                                <button type="submit" class="grow btn btn-primary btn-lg btn-block w-20 mb-2 mt-2 fs-6">Crear</button>
+                            </div>
+                            
+                            <datalist id="contacts">
+                                {% for client in clients %}
+                                    {% if client.active %}
+                                        <option value="{{ client.name }}"></option>
+                                    {% endif %}
+                                {% endfor %}
+                            </datalist>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
