@@ -51,6 +51,11 @@ def update():
             # Delete all prices
             PriceType.objects.all().delete()
             for i in range(len(row["price"])):
+                # Set the first price type in the list as the default price type
+                if i == 0:
+                    default = True
+                else:
+                    default = False
                 # Check if the price is from EPA
                 if row['price'][i]['name'] == 'EPA':
                     continue

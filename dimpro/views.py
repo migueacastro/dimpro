@@ -431,34 +431,31 @@ def edit_order(request, id):
             total = request.POST.get("total-tosubmit")
             pricetype = request.POST.get("price-tosubmit")
             order = Order.objects.get(id=id)
-            type = request.POST.get("order-type").lower()
             order.pricetype = pricetype
             order.total = total
-            order.type = type
             order.save()
         messages.success(request, "Pedido actualizado exitosamente.")
         return HttpResponseRedirect(f"/staff/view/order/{id}")
 
     else:
         order = Order.objects.get(id=id)
-        products = Product.objects.filter(price__gt=0)
+        products = availableProducts()
         pricetypes = PriceType.objects.all()
-        try:
-            percentage = PriceType.objects.get(name = order.pricetype).percentage
-        except PriceType.DoesNotExist:
-            percentage = 0
+    
         return render(
             request,
             "dimpro/staff/staff_order_view_edit.html",
-            {"order": order, "products": products, "pricetypes": pricetypes, "percentage": percentage, "note":Note.objects.get(name = "ADVERTENCIA")},
+            {"order": order, "products": products, "pricetypes": pricetypes, "note":Note.objects.get(name = "ADVERTENCIA")},
         )
 
 
 @only_for("signedin")
 def list_products(_request):
-    products = Product.objects.filter(prices__gt=0)
+    products = availableProducts()
     data = {"products": []}
     for product in products:
+        if list(product.prices[0].values())[0] == 0:
+            continue
         if product.available_quantity <= 0 or product.reference == "":
             continue
         product_dict = {
@@ -911,14 +908,13 @@ def client_orders_edit(request, id):
             order = Order.objects.get(id=id)
             order.pricetype = pricetype
             order.total = total
-            order.type = type
             order.save()
         messages.success(request, "Pedido actualizado exitosamente.")
         return HttpResponseRedirect(f"/client/order/view/{id}/")
 
     else:
         order = Order.objects.get(id=id)
-        products = Product.objects.filter(prices__gt=0)
+        products = availableProducts()
         pricetypes = PriceType.objects.all()
     
         return render(
@@ -1125,3 +1121,9 @@ def change_warning(request):
 def get_product_info(request, id):
     product = Product.objects.get(id=id)
     return JsonResponse(product.to_dict(), safe=False)
+
+def availableProducts():
+    products = Product.objects.all()
+    excludedProducts = [product.id for product in products if product.prices and list(product.prices[0].values())[0] == 0]
+    filteredProducts = products.exclude(id__in=excludedProducts)
+    return filteredProducts
