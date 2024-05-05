@@ -17,7 +17,7 @@ from .forms import (
     CheckOperatorPasswordForm,
 )
 from .decorators import only_for
-from dimpro.management.commands import updatedb
+from dimpro.management.commands.updatedb import update
 import json
 
 
@@ -456,7 +456,7 @@ def edit_order(request, id):
 
 @only_for("signedin")
 def list_products(_request):
-    products = Product.objects.filter(price__gt=0)
+    products = Product.objects.filter(prices__gt=0)
     data = {"products": []}
     for product in products:
         if product.available_quantity <= 0 or product.reference == "":
@@ -466,7 +466,7 @@ def list_products(_request):
             "item": product.item,
             "details": product.details,
             "reference": product.reference,
-            "price": product.price,
+            "prices": product.prices,
             "available_quantity": product.available_quantity,
         }
         data["products"].append(product_dict)
@@ -909,7 +909,6 @@ def client_orders_edit(request, id):
             total = request.POST.get("total-tosubmit")
             pricetype = request.POST.get("price-tosubmit")
             order = Order.objects.get(id=id)
-            type = request.POST.get("order-type").lower()
             order.pricetype = pricetype
             order.total = total
             order.type = type
@@ -919,16 +918,13 @@ def client_orders_edit(request, id):
 
     else:
         order = Order.objects.get(id=id)
-        products = Product.objects.filter(price__gt=0)
+        products = Product.objects.filter(prices__gt=0)
         pricetypes = PriceType.objects.all()
-        try:
-            percentage = PriceType.objects.get(name = order.pricetype).percentage
-        except PriceType.DoesNotExist:
-            percentage = 0
+    
         return render(
             request,
             "dimpro/client/client_edit_order.html",
-            {"order": order, "products": products, "pricetypes": pricetypes, "percentage": percentage, "note":Note.objects.get(name = "ADVERTENCIA")},
+            {"order": order, "products": products, "pricetypes": pricetypes, "note":Note.objects.get(name = "ADVERTENCIA")},
         )
 
 
@@ -1125,3 +1121,7 @@ def change_warning(request):
             return JsonResponse(status=400, data={'message':'Warning object does not exist'})
     except TypeError:
         return JsonResponse(status=500, data={'mesage': 'An error occurred, data is not a JSON'})
+    
+def get_product_info(request, id):
+    product = Product.objects.get(id=id)
+    return JsonResponse(product.to_dict(), safe=False)

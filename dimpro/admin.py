@@ -8,19 +8,19 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'reference', 'item')
 class AlegraUserAdmin(admin.ModelAdmin):
     list_display = ('id', 'email')
-class OrderAdmmin(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'client_id', 'user_email', 'date')
 class Order_ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'order_id', 'product_id', 'quantity')
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 class PriceTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'percentage')
+    list_display = ('id', 'name')
 class NoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'note', 'date')
 
 admin.site.register(Contact, ContactAdmin)
-admin.site.register(Order, OrderAdmmin)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(Order_Product, Order_ProductAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(User, UserAdmin)

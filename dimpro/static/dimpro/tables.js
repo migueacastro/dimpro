@@ -406,8 +406,6 @@ function verify() {
             exists = true;
             break;
         }
-        input.value = '';
-        input.placeholder = '';
     }
 
     if (!exists && valor !== '') {
@@ -429,19 +427,23 @@ async function changeValues(id, reference, aq, q, name, price, cost) {
     let v3 = "";
     let v4 = "";
     let v5 = "";
-    let response = await fetch("/list_products/");
-    let product_search = await response.json();
+    let response0 = await fetch("/list_products/");
+    let product_search = await response0.json();
+
     product_search.products.forEach((product) => {
-        if (product.price < 0) {
-            value = "Producto para garantía.";
-            return;
-        }
-        else if (product.item == value) {
+        if (product.item == value) {
+
             v1 = product.id;
             v2 = product.reference;
             v3 = product['available_quantity'];
             v4 = 1;
-            v5 = product.price;
+            let priceType = $('#select-ptype option:selected').text();
+            Object.values(product.prices).forEach((dict) => {
+                if (Object.keys(dict)[0] == priceType) {
+                    v5 = Object.values(dict)[0];
+                  
+                } 
+            });
         }
 
     });
@@ -458,7 +460,7 @@ async function changeValues(id, reference, aq, q, name, price, cost) {
         document.getElementById(price).innerText = parseDollar(v5) + '$';
         document.getElementById(cost).innerText = parseDollar(v5) + '$';
     }
-    updatePrices();client/order/edit/110/
+    updatePrices();
     updateTotal();
 }
 
@@ -519,6 +521,7 @@ async function updatePrices() {
 
     // Change pricetype to submit
     document.getElementById('price-tosubmit').value = $('#select-ptype option:selected').text();
+    let priceType = $('#select-ptype option:selected').text();
     let table = document.getElementById('tableBody_orders');
     let response = await fetch("/list_products/");
     let product_search = await response.json();
@@ -529,8 +532,14 @@ async function updatePrices() {
             let index = row.id;
             product_search.products.forEach((product) => {
                 if (product.reference == document.getElementById('reference-' + index).innerText) {
-                    price = parseDollar(product.price);
-                    price = parseDollar(price - (parseFloat(pricetype) * parseFloat(price / 100)))
+
+                    Object.values(product.prices).forEach((dict) => {
+                        if (Object.keys(dict)[0] == priceType) {
+                            price = Object.values(dict)[0];
+                        } 
+                    });
+
+                    price = parseDollar(price);
                     document.getElementById('price-' + index).innerText = price + '$';
                     
                     let quantity = document.getElementById('item-q-' + index).value;

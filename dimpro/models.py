@@ -75,15 +75,27 @@ class User(AbstractBaseUser, PermissionsMixin):
     
 class Product(models.Model):
     item = models.CharField(max_length=64, unique=False)
-    id = models.AutoField(primary_key=True)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    id = models.IntegerField(primary_key=True)
+    prices = models.JSONField(blank=True, default=dict)
     details = models.CharField(max_length=128, null = True)
     reference = models.CharField(max_length=64, unique=True, null = True)
     available_quantity = models.IntegerField(validators = [
         MinValueValidator(1)
     ])
+    
     def __str__(self):
         return str(self.id)
+
+    # Create a dictionary based on the product
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'item': self.item,
+            'details': self.details,
+            'reference': self.reference,
+            'prices': self.prices,
+            'available_quantity': self.available_quantity
+        }
 
 class Image(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -120,7 +132,6 @@ class Order(models.Model):
 
 class PriceType(models.Model):
     name = models.CharField(max_length = 128)
-    percentage = models.FloatField()
     default = models.BooleanField(default=False)
     
 

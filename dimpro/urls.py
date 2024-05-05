@@ -53,5 +53,6 @@ urlpatterns = [
     # ORDER EXPORT
     path("order/export/<int:id>/",  views.export_orderpdf, name='order_export'),
    
-
+    # FOR PULIC USE
+    path("getproduct/<int:id>/", views.get_product_info, name='get_product_info'),
 ]
