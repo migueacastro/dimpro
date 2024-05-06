@@ -367,7 +367,7 @@ var lastSelectedItem;
 function setInputValue(input, product_data) {
     inputId = input;
     var input = document.getElementById(inputId);
-    id = getId(input.id);
+    let id = getId(input.id);
 
     var valor = input.value;
 
@@ -386,7 +386,7 @@ function setInputValue(input, product_data) {
                 input.value = '';
                 input.placeholder = 'El producto ya existe';
 
-                return;  // Termina la ejecución de la función aquí
+                return;  
             }
         }
 
@@ -422,30 +422,25 @@ function verify() {
 
 async function changeValues(id, reference, aq, q, name, price, cost) {
     let value = document.getElementById(name).value;
+    let product_id = $(`#product-selection option[value="${value}"]`).text();
     let v1 = "";
     let v2 = "";
     let v3 = "";
     let v4 = "";
     let v5 = "";
-    let response0 = await fetch("/list_products/");
-    let product_search = await response0.json();
+    let response = await fetch(`/getproduct/${product_id}/`);
+    let product = await response.json();
 
-    product_search.products.forEach((product) => {
-        if (product.item == value) {
-
-            v1 = product.id;
-            v2 = product.reference;
-            v3 = product['available_quantity'];
-            v4 = 1;
-            let priceType = $('#select-ptype option:selected').text();
-            Object.values(product.prices).forEach((dict) => {
-                if (Object.keys(dict)[0] == priceType) {
-                    v5 = Object.values(dict)[0];
-                  
-                } 
-            });
-        }
-
+    v1 = product.id;
+    v2 = product.reference;
+    v3 = product['available_quantity'];
+    v4 = 1;
+    let priceType = $('#select-ptype option:selected').text();
+    Object.values(product.prices).forEach((dict) => {
+        if (Object.keys(dict)[0] == priceType) {
+            v5 = Object.values(dict)[0];
+            
+        } 
     });
     document.getElementById(id).innerText = v1;
     document.getElementById(reference).innerText = v2;

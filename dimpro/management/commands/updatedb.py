@@ -27,7 +27,6 @@ def update():
         items = items + dictu
         i += 1
     
-    Product.objects.all().delete()
     for row in items:
         id = row['id']
         item = row['name']

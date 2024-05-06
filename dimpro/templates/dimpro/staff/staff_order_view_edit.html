@@ -126,7 +126,7 @@
                     <datalist id="product-selection">
                         {% for product in products %}
                             {% if product.reference and product.id and product.available_quantity %}
-                                <option value="{{product.item }}"></option>
+                            <option value="{{ product.item }}">{{ product.id }}</option>
                             {% endif %}
                         {% endfor %}
                     </datalist>
