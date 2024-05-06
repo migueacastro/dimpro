@@ -27,6 +27,11 @@ def update():
         items = items + dictu
         i += 1
     
+    productsArray = Product.objects.all()
+    for item in productsArray:
+        item.active = False
+        item.save()
+
     for row in items:
         id = row['id']
         item = row['name']
@@ -37,6 +42,9 @@ def update():
         for price_dict in row['price']:
             if price_dict['name'] != 'EPA':
                 prices.append({price_dict['name']: price_dict['price']})
+        
+        active = False if row['inventory']['availableQuantity'] == 0 or row['price'][0]['price'] == 0 else True
+      
 
         # Check if item exists to avoid duplicates
         try:
@@ -80,7 +88,7 @@ def update():
             selecteditem.reference = reference
             selecteditem.available_quantity = available_quantity
             selecteditem.prices = prices
-
+            selecteditem.active = active
             selecteditem.save()
         except ObjectDoesNotExist:
             try:

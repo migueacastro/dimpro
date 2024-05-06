@@ -76,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Product(models.Model):
     item = models.CharField(max_length=64, unique=False)
     id = models.IntegerField(primary_key=True)
+    active = models.BooleanField(null = False, default=False)
     prices = models.JSONField(blank=True, default=dict)
     details = models.CharField(max_length=128, null = True)
     reference = models.CharField(max_length=64, unique=True, null = True)

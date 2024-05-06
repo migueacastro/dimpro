@@ -1124,6 +1124,6 @@ def get_product_info(request, id):
 
 def availableProducts():
     products = Product.objects.all()
-    excludedProducts = [product.id for product in products if product.prices and list(product.prices[0].values())[0] == 0]
+    excludedProducts = [product.id for product in products if product.prices and list(product.prices[0].values())[0] == 0 and not product.active]
     filteredProducts = products.exclude(id__in=excludedProducts)
     return filteredProducts
