@@ -365,33 +365,32 @@ var product_data;
 var inputId;
 var lastSelectedItem;
 function setInputValue(input, product_data) {
-    inputId = input;
-    var input = document.getElementById(inputId);
-    let id = getId(input.id);
+  inputId = input;
+  var inputElement = document.getElementById(inputId);
+  var id = getId(inputElement.id);
+  var valor = inputElement.value;
+  var rows = Array.from(document.getElementById('datatable-orders').rows);
+  var itemCounts = {};
+  var productExists = false;
 
-    var valor = input.value;
+  rows.forEach(row => {
+    if (row.id) {
+      var item = document.getElementById('item-' + row.id).value;
+      itemCounts[item] = (itemCounts[item] || 0) + 1;
 
-    var rows = Array.from(document.getElementById('datatable-orders').rows);
+      if (valor === item && itemCounts[item] > 1) {
+        console.log('El producto ya existe en la tabla');
+        productExists = true;
+      }
+    }
+  });
 
-    var itemCounts = {};
-    console.log(rows.length);
-    rows.forEach(row => {
-        if (row.id) {
-            var item = document.getElementById('item-' + row.id).value;
-
-            itemCounts[item] = (itemCounts[item] || 0) + 1;
-
-            if (valor === item && itemCounts[item] > 1) {
-                console.log('El producto ya existe en la tabla');
-                input.value = '';
-                input.placeholder = 'El producto ya existe';
-
-                return;  
-            }
-        }
-
-    });
-    lastSelectedItem = input.value;
+  if (productExists) {
+    inputElement.value = '';
+    inputElement.placeholder = 'El producto ya existe en la tabla';
+  } else {
+    lastSelectedItem = inputElement.value;
+  }
 }
 
 function verify() {
@@ -423,6 +422,10 @@ function verify() {
 async function changeValues(id, reference, aq, q, name, price, cost) {
     let value = document.getElementById(name).value;
     let product_id = $(`#product-selection option[value="${value}"]`).text();
+    if (!product_id || product_id.trim() == "") {
+        verify()
+        return;
+    }
     let v1 = "";
     let v2 = "";
     let v3 = "";
@@ -673,7 +676,25 @@ function addRow() {
 
 
 function deleteRow(id) {
-    document.getElementById(id).remove()
+    $(`#${id}`).remove();
+    let rowId = parseInt(id);
+    let rows = $('#tableBody_orders tr');
+    rows.each(function(index, row) {
+    if (index < rowId) {
+        return;
+    } 
+    if (row.id) {
+        row.id = index;
+        $(`#item-${index + 1}`).prop('id', `item-${index}`);
+        $(`#id-${index + 1}`).prop('id', `id-${index}`);
+        $(`#reference-${index + 1}`).prop('id', `reference-${index}`);
+        $(`#aq-${index + 1}`).prop('id', `aq-${index}`);
+        $(`#item-q-${index + 1}`).prop('id', `item-q-${index}`);
+        $(`#price-${index + 1}`).prop('id', `price-${index}`);
+        $(`#cost-${index + 1}`).prop('id', `cost-${index}`);
+    }
+});
+
     updateTotal();
 }
 
