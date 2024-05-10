@@ -19,7 +19,7 @@ from .forms import (
 from .decorators import only_for
 from dimpro.management.commands.updatedb import update
 import json
-
+import datetime
 
 # For pdf exporting
 from django.http import FileResponse
@@ -1118,6 +1118,72 @@ def change_warning(request):
     except TypeError:
         return JsonResponse(status=500, data={'mesage': 'An error occurred, data is not a JSON'})
     
+def export_inventory(request):
+    # Create bytestream buffer
+    buf = io.BytesIO()
+    # Create a BaseDocTemplate
+    doc = BaseDocTemplate(buf, pagesize=letter)
+    # Create a frame
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    
+    # Create a PageTemplate
+    template = PageTemplate(id='test', frames=frame)
+
+    # Add PageTemplate to the BaseDocTemplate
+    doc.addPageTemplates([template])
+
+
+    #Add headings
+    lines = [["Item", "Referencia", "Cantidad disponible"]]
+    products = availableProducts()
+    
+    for product in products:
+        item = Paragraph(str(product.item), styles['Normal'])
+        reference = Paragraph(str(product.reference), styles['Normal'])
+        quantity = Paragraph(str(product.available_quantity), styles['Normal'])
+
+        lines.append((
+                     item, 
+                     reference, 
+                     quantity))
+    
+    col_widths = [56*mm, 56*mm, 56*mm]
+    
+    table = Table(lines, colWidths=col_widths, rowHeights=10*mm)
+
+    table.setStyle(TableStyle([
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Vertically center-align all cells
+                        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('FONTSIZE', (0,0), (-1,0), 10),
+                        ('FONTSIZE', (0,1), (-1,-1), 7),
+
+    ]))
+    
+    # Create logo 
+    drawing = svg2rlg(finders.find('dimpro/logodimpro.svg'))
+    drawing.width = 100
+    drawing.height = 0
+    drawing.hAlign = 'CENTER'
+
+    # Create Paragraph of information
+    
+    information = Paragraph(f"<b>Inventario</b><br/><b>Produtos disponibles:</b> {len(products)}<br/><b>Fecha:</b> {datetime.datetime.today().strftime('%d %B %Y %H:%M')}<br/>", styles["Normal"])
+
+    # Create a spacer
+    spacer = Spacer(1, 12)
+
+    # Create story
+    story = [drawing, spacer, information, spacer, table]
+
+    # Add table to BaseDocTemplate
+    doc.build(story)
+    buf.seek(0)
+
+    
+    return FileResponse(buf, as_attachment=True, filename=f'inventario-dimpro-{datetime.date.today()}.pdf')
+
+
 def get_product_info(request, id):
     product = Product.objects.get(id=id)
     return JsonResponse(product.to_dict(), safe=False)
@@ -1126,4 +1192,5 @@ def availableProducts():
     products = Product.objects.all()
     excludedProducts = [product.id for product in products if product.prices and list(product.prices[0].values())[0] == 0 and not product.active]
     filteredProducts = products.exclude(id__in=excludedProducts)
+    filteredProducts = filteredProducts.exclude(available_quantity__lt=1)
     return filteredProducts

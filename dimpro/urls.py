@@ -52,7 +52,8 @@ urlpatterns = [
 
     # ORDER EXPORT
     path("order/export/<int:id>/",  views.export_orderpdf, name='order_export'),
+    path("exportinventory", views.export_inventory, name='export_inventory'),
    
-    # FOR PULIC USE
+    # FOR PUBLIC USE
     path("getproduct/<int:id>/", views.get_product_info, name='get_product_info'),
 ]

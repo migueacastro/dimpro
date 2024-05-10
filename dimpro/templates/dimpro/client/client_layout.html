@@ -46,7 +46,7 @@
                 </div>
 
                 <hr class="w-75 mx-auto">
-                <div class="list-group list-group-flush my-3">
+                <div class="list-group list-group-flush">
                     <a href="{% url 'dimpro:index' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-house me-2"></i>Inicio
                     </a>
@@ -56,11 +56,14 @@
                     <a href="{% url 'dimpro:client_orders' user.id %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-box me-2"></i>Pedidos
                     </a>
+                    <a href="{% url 'dimpro:export_inventory' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fa-solid fa-boxes-stacked me-2"></i>Inventario
+                    </a>
                     <a href="{% url 'dimpro:logout' %}" class="growt list-group-item list-group-item-action bg-transparent text-danger fw-bold">
                         <i class="fas fa-xmark me-2"></i>Cerrar Sesión
                     </a>
                 </div>
-                <div class="d-flex flex-column h-50 justify-content-end">
+                <div class="d-flex flex-column h-25 justify-content-end py-3">
                     <p class="text-center list-group-item">Hecho por <a class="primary-text" href="https://github.com/migueacastro" target="_blank">Miguel Castro <i class="fa-brands fa-github primary-text"></i></a></p>
                 </div>
             </div>

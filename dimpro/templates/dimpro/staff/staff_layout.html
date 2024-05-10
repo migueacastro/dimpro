@@ -47,7 +47,7 @@
                 </div>
 
                 <hr class="w-75 mx-auto">
-                <div class="list-group list-group-flush my-3">
+                <div class="list-group list-group-flush">
                     <a href="{% url 'dimpro:control' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-house me-2"></i>Inicio
                     </a>
@@ -56,6 +56,9 @@
                     </a>
                     <a href="{% url 'dimpro:staff_clients' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-user-group me-2"></i>Vendedores
+                    </a>
+                    <a href="{% url 'dimpro:export_inventory' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fa-solid fa-boxes-stacked me-2"></i>Inventario
                     </a>
                     {% if user.is_operator %}
                     <a href="{% url 'dimpro:staff_settings' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
