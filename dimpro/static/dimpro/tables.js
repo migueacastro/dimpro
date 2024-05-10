@@ -344,7 +344,7 @@ const listOrderProductsEdit = async () => {
                 <td id="aq-${index}">${product['available-quantity']}</td>
                 <td id="price-${index}">${product.price}$</td>
                 <td id="cost-${index}">${(parseDollar(product.price * product.quantity))}$</td>
-                <td><i class="fa-solid fa-xmark grow" onclick="deleteRow(${index});"></i></td>
+                <td><i class="fa-solid fa-xmark grow" id="delete-${index}" onclick="deleteRow(${index});"></i></td>
             </tr>
             `;
 
@@ -372,6 +372,7 @@ function setInputValue(input, product_data) {
   var rows = Array.from(document.getElementById('datatable-orders').rows);
   var itemCounts = {};
   var productExists = false;
+  let rowId = inputElement.id.replace('item-', "");
 
   rows.forEach(row => {
     if (row.id) {
@@ -388,6 +389,14 @@ function setInputValue(input, product_data) {
   if (productExists) {
     inputElement.value = '';
     inputElement.placeholder = 'El producto ya existe en la tabla';
+    // Empty other elements
+    $(`#id-${rowId}`).prop('innerText', ``);
+    $(`#reference-${rowId}`).prop('innerText', ``);
+    $(`#item-q-${rowId}`).prop('value', ``);
+    $(`#aq-${rowId}`).prop('innerText', ``);
+    $(`#price-${rowId}`).prop('innerText', ``);
+    $(`#cost-${rowId}`).prop('innerText', ``);
+    updateTotal();
   } else {
     lastSelectedItem = inputElement.value;
   }
@@ -450,7 +459,7 @@ async function changeValues(id, reference, aq, q, name, price, cost) {
     document.getElementById(aq).innerText = v3;
     document.getElementById(q).value = v4;
     document.getElementById(q).max = v3;
-    if (v5 === "") {
+    if (v5 === "" || value === "") {
         document.getElementById(price).innerText = '';
         document.getElementById(cost).innerText = '';
     }
@@ -657,6 +666,7 @@ function addRow() {
     icon.onclick = function () {
         deleteRow(index);
     };
+    icon.id = `delete-${index}`;
 
     cell2.appendChild(input1);
     cell4.appendChild(input2);
@@ -676,25 +686,28 @@ function addRow() {
 
 
 function deleteRow(id) {
-    $(`#${id}`).remove();
+    
     let rowId = parseInt(id);
-    let rows = $('#tableBody_orders tr');
-    rows.each(function(index, row) {
-    if (index < rowId) {
-        return;
-    } 
-    if (row.id) {
-        row.id = index;
-        $(`#item-${index + 1}`).prop('id', `item-${index}`);
-        $(`#id-${index + 1}`).prop('id', `id-${index}`);
-        $(`#reference-${index + 1}`).prop('id', `reference-${index}`);
-        $(`#aq-${index + 1}`).prop('id', `aq-${index}`);
-        $(`#item-q-${index + 1}`).prop('id', `item-q-${index}`);
-        $(`#price-${index + 1}`).prop('id', `price-${index}`);
-        $(`#cost-${index + 1}`).prop('id', `cost-${index}`);
-    }
-});
-
+    let rows = document.querySelector('#tableBody_orders').rows;
+    $(`#${id}`).remove();
+    Array.from(rows).forEach((row, index) => {
+        if (index < rowId) {
+            return;
+        } 
+        if (row.id) {
+            row.id = `${index}`;
+            $(`#item-${index + 1}`).prop('id', `item-${index}`);
+            $(`#id-${index + 1}`).prop('id', `id-${index}`);
+            $(`#reference-${index + 1}`).prop('id', `reference-${index}`);
+            $(`#aq-${index + 1}`).prop('id', `aq-${index}`);
+            $(`#item-q-${index + 1}`).prop('id', `item-q-${index}`);
+            $(`#price-${index + 1}`).prop('id', `price-${index}`);
+            $(`#cost-${index + 1}`).prop('id', `cost-${index}`);
+            $(`#delete-${index + 1}`).prop('id', `delete-${index}`);
+            document.querySelector(`#delete-${index}`).setAttribute('onclick', `deleteRow(${index})`)
+        }
+    });
+    
     updateTotal();
 }
 

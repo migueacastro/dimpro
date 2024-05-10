@@ -43,7 +43,11 @@ def update():
             if price_dict['name'] != 'EPA':
                 prices.append({price_dict['name']: price_dict['price']})
         
-        active = False if row['inventory']['availableQuantity'] == 0 or row['price'][0]['price'] == 0 else True
+        if 'inventory' in row:
+            available_quantity = row['inventory'].get('availableQuantity', 0)
+            active = False if available_quantity == 0 or row['price'][0]['price'] == 0 else True
+        else:
+            active = False
       
 
         # Check if item exists to avoid duplicates
