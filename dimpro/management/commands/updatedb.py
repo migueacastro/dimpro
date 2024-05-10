@@ -42,20 +42,16 @@ def update():
         for price_dict in row['price']:
             if price_dict['name'] != 'EPA':
                 prices.append({price_dict['name']: price_dict['price']})
-        
-        if 'inventory' in row:
-            available_quantity = row['inventory'].get('availableQuantity', 0)
-            active = False if available_quantity == 0 or row['price'][0]['price'] == 0 else True
-        else:
-            active = False
-      
-
-        # Check if item exists to avoid duplicates
         try:
-            check = Product.objects.get(reference=reference)
-            continue
-        except Product.DoesNotExist:
-            check = None
+            available_quantity = row['inventory']
+            available_quantity = available_quantity['warehouses'][0]
+            available_quantity = available_quantity['availableQuantity']
+        except KeyError:
+            available_quantity = 0
+        
+        
+        active = False if available_quantity == 0 or row['price'][0]['price'] == 0 else True
+        
         
         # Add the current prices of Alegra
         if row['name'] == 'BOMBILLO LED 12W':
@@ -73,12 +69,6 @@ def update():
 
                 name = row['price'][i]['name']
                 PriceType.objects.create(id=i, name=name, default =False)
-
-
-        try:
-            available_quantity = row['inventory']['availableQuantity']
-        except KeyError as e:
-            available_quantity = 0
         
         try:
             selecteditem = Product.objects.get(reference=reference)

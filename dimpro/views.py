@@ -1168,7 +1168,7 @@ def export_inventory(request):
 
     # Create Paragraph of information
     
-    information = Paragraph(f"<b>Inventario</b><br/><b>Produtos disponibles:</b> {len(products)}<br/><b>Fecha:</b> {datetime.datetime.today().strftime('%d %B %Y %H:%M')}<br/>", styles["Normal"])
+    information = Paragraph(f"<b>Inventario</b><br/><b>Items disponibles:</b> {len(products)}<br/><b>Fecha:</b> {datetime.datetime.today().strftime('%d %B %Y %H:%M')}<br/>", styles["Normal"])
 
     # Create a spacer
     spacer = Spacer(1, 12)
