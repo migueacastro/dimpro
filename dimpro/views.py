@@ -1135,7 +1135,7 @@ def export_inventory(request):
 
     #Add headings
     lines = [["Item", "Referencia", "Cantidad disponible"]]
-    products = availableProducts()
+    products = availableProducts().order_by('item')
     
     for product in products:
         item = Paragraph(str(product.item), styles['Normal'])
