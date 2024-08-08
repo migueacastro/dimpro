@@ -1,8 +1,18 @@
 from alegra.client import Client as c
 from django.db.utils import IntegrityError
-from dimpro.models import Product, AlegraUser, Contact, PriceType
+from dimpro.models import Product, AlegraUser, Contact, PriceType, Receivable
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+import requests
+import base64
             
+def encodeduser():
+    alegra_user = AlegraUser.objects.get(id=1)
+    original_string = f"{alegra_user.email}:{alegra_user.token}"
+    encoded_bytes = base64.b64encode(original_string.encode("utf-8"))
+    encoded_string = encoded_bytes.decode("utf-8")
+    return encoded_string
+
 def update():
             
     def add_contact(nam):
@@ -119,3 +129,66 @@ def update():
                 add_contact(name) 
             except Exception as e:
                 continue
+
+    # Update receivables
+    headers = {"accept": "application/json",
+                "authorization": f"Basic {encodeduser()}"}
+    items = []
+    i = 0
+    while (True):
+        url = f"https://api.alegra.com/api/v1/invoices?start={30*i}&order_direction=DESC&order_field=date&status=open"
+        dictu = requests.get(url, headers=headers).json()
+        if not dictu:
+            break
+        items = items + dictu
+        i += 1
+    
+    for row in items:
+        if row['status'] == 'open':
+            try:
+                id = row.get('id')
+                total = row.get('balance')
+                date = row.get('date')
+                number = row.get('numberTemplate', {}).get('fullNumber')
+
+                # Get and validate data of the row from invoices
+                client = row.get('client', {})
+                client = client.get('name') if client else 'Sin cliente'
+
+                seller = row.get('seller', {})
+                seller = seller.get('name') if seller else 'Sin vendedor'
+            except Exception as e:
+
+                continue
+
+            try:
+                # Check
+                receivable = Receivable.objects.get(id=id)
+            except ObjectDoesNotExist:
+                # Creating
+                try:
+                    Receivable.objects.create(id=id, total=total, date=date, client=client, seller=seller, number=number, active=True)
+                except IntegrityError as e:
+                    continue
+            else:
+                # Updating 
+                try:
+                    receivable.total = total
+                    receivable.date = date
+                    receivable.client = client.strip()
+                    receivable.seller = seller.strip()
+                    receivable.number = number
+                    if row['status'] == 'open':
+                        receivable.active = True
+                    else:
+                        receivable.active = False
+                    receivable.save()
+                except IntegrityError as e:
+                    continue
+
+
+class Command(BaseCommand):
+    help = 'Updates the database'
+    def handle(self, *args, **options):
+        update()
+       

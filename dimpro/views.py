@@ -7,7 +7,8 @@ from django.conf import settings
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.staticfiles import finders
-from .models import User, Order, Product, Order_Product, Contact, AlegraUser, PriceType, Note
+from .models import User, Order, Product, Order_Product, Contact, AlegraUser, PriceType, Note, Receivable
+from django.db.models import Sum, F, Value, CharField
 from .forms import (
     LoginForm,
     UserRegisterForm,
@@ -20,6 +21,7 @@ from .decorators import only_for
 from dimpro.management.commands.updatedb import update
 import json
 import datetime
+
 
 # For pdf exporting
 from django.http import FileResponse
@@ -1194,3 +1196,210 @@ def availableProducts():
     filteredProducts = products.exclude(id__in=excludedProducts)
     filteredProducts = filteredProducts.exclude(available_quantity__lt=1)
     return filteredProducts
+
+@only_for('signedin')
+def inventory(request):
+    if request.user.is_staff:
+        return render(request, 'dimpro/staff/staff_inventory.html', {'n_items': len(availableProducts())})
+    return render(request, 'dimpro/client/client_inventory.html', {'n_items': len(availableProducts())})
+
+@only_for('signedin')
+def receivables(request, id):
+    user = User.objects.get(id=id)
+    receivables = Receivable.objects.annotate(names=Value(f'{user.name} {user.last_name}', output_field=CharField())).filter(names__icontains=F('seller'), active=True).order_by('-date')
+    subtotals = receivables.aggregate(sum_of_total=Sum('total'))
+    total = subtotals['sum_of_total'] if subtotals['sum_of_total'] else 0
+    length = receivables.count()        
+    if request.user.is_staff:
+        return render(request, 'dimpro/staff/staff_client_receivables.html', {'total':f'{total:.2f} $', 'number': length, 'n_receivables': length, 'seller': user})
+    return render(request, 'dimpro/client/client_receivables.html', {'total':f'{total:.2f} $', 'number': length, 'n_receivables': length, 'seller': user})
+
+@only_for('signedin')
+def list_receivables_user(request, id):
+    user = User.objects.get(id=id)
+    receivables = Receivable.objects.annotate(names=Value(f'{user.name} {user.last_name}', output_field=CharField())).filter(names__icontains=F('seller'), active=True).order_by('-date')
+    data = {"receivables": []}
+    for receivable in receivables:
+        if receivable.total > 0:
+            receivable_dict = {
+                "number": receivable.number,
+                "date": receivable.date.strftime("%d %B %Y"),
+                "client": receivable.client,
+                "seller": receivable.seller,
+                "total": receivable.total,
+                "active": receivable.active,
+                "days": (datetime.date.today() - receivable.date).days
+            }
+            data["receivables"].append(receivable_dict)
+    return JsonResponse(data)
+    
+only_for('signedin')
+def export_receivables_user(request, id):
+     # Create bytestream buffer
+    buf = io.BytesIO()
+    # Create a BaseDocTemplate
+    doc = BaseDocTemplate(buf, pagesize=letter)
+    # Create a frame
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    
+    # Create a PageTemplate
+    template = PageTemplate(id='test', frames=frame)
+
+    # Add PageTemplate to the BaseDocTemplate
+    doc.addPageTemplates([template])
+
+
+    #Add headings
+    lines = [["Número de Nota", "Cliente", "Total", "Emisión", "Días"]]
+    user = User.objects.get(id=id)
+    receivables = Receivable.objects.annotate(names=Value(f'{user.name} {user.last_name}', output_field=CharField())).filter(names__icontains=F('seller')).order_by('-date')
+    
+    for receivable in receivables:
+        number = Paragraph(f'{receivable.number}', styles['Normal'])
+        client = Paragraph(str(receivable.client), styles['Normal'])
+        total = Paragraph(str(receivable.total) + '$', styles['Normal'])
+        date = Paragraph(str(receivable.date), styles['Normal'])
+        days = Paragraph(str((datetime.date.today() - receivable.date).days), styles['Normal'])
+        lines.append((
+                     number, 
+                     client, 
+                     total,
+                     date,
+                     days))
+    
+    col_widths = [32*mm, 68*mm, 20*mm, 28*mm, 20*mm]
+    
+    table = Table(lines, colWidths=col_widths, rowHeights=10*mm)
+
+    table.setStyle(TableStyle([
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Vertically center-align all cells
+                        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('FONTSIZE', (0,0), (-1,0), 10),
+                        ('FONTSIZE', (0,1), (-1,-1), 7),
+
+    ]))
+    
+    # Create logo 
+    drawing = svg2rlg(finders.find('dimpro/logodimpro.svg'))
+    drawing.width = 100
+    drawing.height = 0
+    drawing.hAlign = 'CENTER'
+
+    # Create Paragraph of information
+    receivables = Receivable.objects.annotate(names=Value(f'{user.name} {user.last_name}', output_field=CharField())).filter(names__icontains=F('seller'), active=True)
+    subtotals = receivables.aggregate(sum_of_total=Sum('total'))
+    total = subtotals['sum_of_total'] if subtotals['sum_of_total'] else 0
+    length = receivables.count()
+    information = Paragraph(f"<b>Cuentas por cobrar</b><br/><b>Vendedor:</b> {f'{user.name} {user.last_name}'}<br/><b>Total por cobrar:</b> {total:.2f}$<br/><b>Número de cuentas:</b> {length}<br/><b>Fecha:</b> {datetime.datetime.today().strftime('%d %B %Y %H:%M')}<br/>", styles["Normal"])
+
+    # Create a spacer
+    spacer = Spacer(1, 12)
+
+    # Create story
+    story = [drawing, spacer, information, spacer, table]
+
+    # Add table to BaseDocTemplate
+    doc.build(story)
+    buf.seek(0)
+
+    
+    return FileResponse(buf, as_attachment=True, filename=f'cuentas-por-cobrar-{user.name}-{user.last_name}-{datetime.date.today()}.pdf')
+
+@only_for('staff')
+def staff_receivables(request):
+    receivables = Receivable.objects.filter(active=True).order_by('-date')
+    subtotals = receivables.aggregate(sum_of_total=Sum('total'))
+    total = subtotals['sum_of_total'] if subtotals['sum_of_total'] else 0
+    length = receivables.count()  
+    return render(request, 'dimpro/staff/staff_receivables.html', {'total':f'{total:.2f} $', 'number': length, 'n_receivables': length})
+
+@only_for('signedin')
+def list_receivables_all(request):
+    receivables = Receivable.objects.filter(active=True).order_by('-date')
+    data = {"receivables": []}
+    for receivable in receivables:
+        if receivable.total > 0:
+            receivable_dict = {
+                "number": receivable.number,
+                "date": receivable.date.strftime("%d %B %Y"),
+                "client": receivable.client,
+                "seller": receivable.seller,
+                "total": receivable.total,
+                "active": receivable.active,
+                "days": (datetime.date.today() - receivable.date).days
+            }
+            data["receivables"].append(receivable_dict)
+    return JsonResponse(data)
+
+only_for('staff')
+def export_receivables_staff(request):
+     # Create bytestream buffer
+    buf = io.BytesIO()
+    # Create a BaseDocTemplate
+    doc = BaseDocTemplate(buf, pagesize=letter)
+    # Create a frame
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    
+    # Create a PageTemplate
+    template = PageTemplate(id='test', frames=frame)
+
+    # Add PageTemplate to the BaseDocTemplate
+    doc.addPageTemplates([template])
+
+
+    #Add headings
+    lines = [["Número de Nota", "Cliente", "Total", "Emisión", "Días"]]
+    receivables = Receivable.objects.filter(active=True).order_by('-date')
+    
+    for receivable in receivables:
+        number = Paragraph(f'{receivable.number}', styles['Normal'])
+        client = Paragraph(str(receivable.client), styles['Normal'])
+        total = Paragraph(str(receivable.total) + '$', styles['Normal'])
+        date = Paragraph(str(receivable.date), styles['Normal'])
+        days = Paragraph(str((datetime.date.today() - receivable.date).days), styles['Normal'])
+        lines.append((
+                     number, 
+                     client, 
+                     total,
+                     date,
+                     days))
+    
+    col_widths = [32*mm, 68*mm, 20*mm, 28*mm, 20*mm]
+    
+    table = Table(lines, colWidths=col_widths, rowHeights=10*mm)
+
+    table.setStyle(TableStyle([
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Vertically center-align all cells
+                        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('FONTSIZE', (0,0), (-1,0), 10),
+                        ('FONTSIZE', (0,1), (-1,-1), 7),
+
+    ]))
+    
+    # Create logo 
+    drawing = svg2rlg(finders.find('dimpro/logodimpro.svg'))
+    drawing.width = 100
+    drawing.height = 0
+    drawing.hAlign = 'CENTER'
+
+    # Create Paragraph of information
+    receivables = Receivable.objects.filter(active=True)
+    subtotals = receivables.aggregate(sum_of_total=Sum('total'))
+    total = subtotals['sum_of_total'] if subtotals['sum_of_total'] else 0
+    length = receivables.count()
+    information = Paragraph(f"<b>Cuentas por cobrar DIMPRO</b><br/><b>Total por cobrar:</b> {total:.2f}$<br/><b>Número de cuentas:</b> {length}<br/><b>Fecha:</b> {datetime.datetime.today().strftime('%d %B %Y %H:%M')}<br/>", styles["Normal"])
+
+    # Create a spacer
+    spacer = Spacer(1, 12)
+
+    # Create story
+    story = [drawing, spacer, information, spacer, table]
+
+    # Add table to BaseDocTemplate
+    doc.build(story)
+    buf.seek(0)
+
+    
+    return FileResponse(buf, as_attachment=True, filename=f'cuentas-por-cobrar-dimpro-{datetime.date.today()}.pdf')

@@ -26,7 +26,9 @@
             <div class=" p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded h-100">
                 <div>
                     <p class="fs-6">Se unió en {{ seller.date_joined }}</p>
-                    <p class="fs-6">Último inicio de sesión en {{ seller.last_login }}</p>           
+                    <p class="fs-6">Último inicio de sesión en {{ seller.last_login }}</p>    
+                    <a href="{% url 'dimpro:receivables' seller.id %}"><p class="fs-6 primary-text">Cuentas por cobrar</p>  </a>
+                        
                 </div>
                 <i class="fas fa-flag fs-1 primary-text p-3"></i>
             </div>

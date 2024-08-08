@@ -1,0 +1,26 @@
+{% extends 'dimpro/client/client_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Error 404
+{% endblock %}
+
+{% block stitle %}
+    Error 404
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-column justify-content-center">
+        <div class="w-75 mx-auto">
+            <h2 class="mt-5 mb-5 fs-2 primary-text text-center">Error: Usuario sin cuentas por cobrar</h2>
+            <h2 class="mt-2 mb-5 fs-5">Su nombre de usuario no coincide con el de ningún vendedor registrado.</h2>
+        </div>
+
+        <a href="{% url 'dimpro:start' %}" class="d-flex justify-content-center">
+            <button type="button" class="grow btn btn-primary btn-lg btn-block w-25 mb-3">Volver a inicio</button>
+        </a>
+    </div>
+    
+    
+{% endblock %}

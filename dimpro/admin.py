@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Image, Product, AlegraUser, Order, Order_Product, Contact, PriceType, Note
+from .models import User, Image, Product, AlegraUser, Order, Order_Product, Contact, PriceType, Note, Receivable
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
@@ -18,6 +18,8 @@ class PriceTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 class NoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'note', 'date')
+class ReceivableAdmin(admin.ModelAdmin):
+    list_display = ('id', 'number', 'date', 'active')
 
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Order, OrderAdmin)
@@ -28,3 +30,4 @@ admin.site.register(Image)
 admin.site.register(AlegraUser, AlegraUserAdmin)
 admin.site.register(PriceType, PriceTypeAdmin)
 admin.site.register(Note, NoteAdmin)
+admin.site.register(Receivable, ReceivableAdmin)

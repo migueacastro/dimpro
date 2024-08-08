@@ -40,7 +40,9 @@ urlpatterns = [
     path("staff/order/delete/<int:id>/", views.staff_order_delete, name='delete_order'),
     path("staff/authenticate/", views.verify_password, name='staff_authenticate'),
     path("staff/changewarning/", views.change_warning, name='change_warning'),
-    
+    path("staff/receivables/", views.staff_receivables, name='staff_receivables'),
+    path("list_receivables_all/", views.list_receivables_all, name='list_receivables_all'),
+    path("staff/exportreceivables/", views.export_receivables_staff, name='export_receivables_staff'),
     # CLIENT
     path("", views.index, name='index'),
     path("client/profile/<int:id>/", views.client_profile, name='client_profile'),
@@ -49,11 +51,17 @@ urlpatterns = [
     path("client/order/edit/<int:id>/", views.client_orders_edit, name='client_editorder'),
     path("client/order/view/<int:id>/", views.client_order_view, name='client_vieworder'),
     path("client/order/delete/<int:id>",  views.client_order_delete, name='client_deleteorder'),
-
+    path("client/receivables/<int:id>/", views.receivables, name='receivables'),
+    path("client/exportreceivables/<int:id>/", views.export_receivables_user, name='export_receivables_user'),
+    
     # ORDER EXPORT
     path("order/export/<int:id>/",  views.export_orderpdf, name='order_export'),
+    path("inventory/", views.inventory, name='inventory'),
     path("exportinventory", views.export_inventory, name='export_inventory'),
-   
+
+    # Receivables
+    path("list_receivables_user/<int:id>/", views.list_receivables_user, name='list_receivables_user'),
+    
     # FOR PUBLIC USE
     path("getproduct/<int:id>/", views.get_product_info, name='get_product_info'),
 ]

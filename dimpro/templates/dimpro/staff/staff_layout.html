@@ -57,14 +57,18 @@
                     <a href="{% url 'dimpro:staff_clients' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-user-group me-2"></i>Vendedores
                     </a>
-                    <a href="{% url 'dimpro:export_inventory' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="{% url 'dimpro:inventory' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fa-solid fa-boxes-stacked me-2"></i>Inventario
+                    </a>
+                    <a href="{% url 'dimpro:staff_receivables' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fa-solid fa-file-invoice me-2"></i>Cuentas por Cobrar
                     </a>
                     {% if user.is_operator %}
                     <a href="{% url 'dimpro:staff_settings' %}" class="growt list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-gear me-2"></i>Configuración
                     </a>
                     {% endif %}
+                    
                     <a href="{% url 'dimpro:logout' %}" class="growt list-group-item list-group-item-action bg-transparent text-danger fw-bold">
                         <i class="fas fa-xmark me-2"></i>Cerrar Sesión
                     </a>

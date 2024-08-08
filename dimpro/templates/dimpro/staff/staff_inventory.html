@@ -1,0 +1,53 @@
+{% extends 'dimpro/staff/staff_layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Inventario
+{% endblock %}
+
+{% block stitle %}
+    Inventario
+{% endblock %}
+
+{% block body %}
+    <div class="row g-3 my-2">        
+        
+        <div class="col md-4">
+            <h3 class="fs-4 mb-3 primary-text flex-row d-flex">
+                <div class="w-50">{{ n_items }} Items</div>
+                <div class="w-50 justify-content-end d-flex"><a href="{% url 'dimpro:export_inventory' %}">
+                    <button type="button" class="btn btn-primary preparado fs-6 grow  mx-2">Imprimir <i class="fa-solid fa-print"></i></button>
+                </a>   </div></h3>
+            <div class="col mx-auto">
+                <div class="table-responsive">
+                    <table id="datatable-orders" class="table bg-white rounded shadow-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Referencia</th>
+                                <th>Item</th>
+                                <th>Cantidad Disponible</th>
+                            </tr>
+                        </thead>  
+                        <tbody id="tableBody_orders"></tbody>
+                    </table>
+                </div>
+            </div>
+           
+            
+        </div>
+    </div>
+
+     <!-- Bootstrap -->
+     
+     <!-- jQuery -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+     <!-- DataTable.js -->
+     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+     <!-- Custom JS -->
+     <script src="{% static 'dimpro/tables.js' %}"></script>
+     <script>
+        ShowDataTable(listProducts);
+     </script>
+{% endblock %}

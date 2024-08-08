@@ -152,3 +152,11 @@ class Note(models.Model):
     note = models.TextField()
     name = models.CharField(max_length=128)
     date = models.DateTimeField(auto_now_add=True)
+
+class Receivable(models.Model):
+    active = models.BooleanField(default=False)
+    seller = models.CharField(max_length=128, blank=True, null=True)
+    client = models.CharField(max_length=128, blank=True, null=True)
+    total = models.DecimalField(max_digits=7, decimal_places=2)
+    date = models.DateField(auto_now_add=False)
+    number = models.CharField(max_length=128, blank=True, null=True)

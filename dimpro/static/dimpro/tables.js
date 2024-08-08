@@ -211,6 +211,35 @@ const listOrdersAll = async () => {
     }
 };
 
+const listProducts = async () => {
+    try {
+        let response;
+        response = await fetch('/list_products/');
+
+
+        const data = await response.json();
+        let content = ``;
+        data.products.reverse().forEach((product) => {
+            if (product.available_quantity > 0 || product.price > 0) {
+                content += `
+                <tr>
+                    <td>${product.item}</td>
+                    <td>${product.reference}</td>
+                    <td>${product.available_quantity}</td>
+                
+                `;
+                content += `
+                </tr>
+                `;
+            }
+        });
+        tableBody_orders.innerHTML = content;
+        $('#datatable-orders').DataTable().order([[0, 'desc']]).draw();
+    } catch (ex) {
+        alert(ex);
+    }
+};
+
 const listSellers = async () => {
     try {
         const response = await fetch('/list_sellers/');
@@ -236,6 +265,71 @@ const listSellers = async () => {
             content += `</tr>`;
         });
         tableBody_orders.innerHTML = content;
+    } catch (ex) {
+        alert(ex);
+    }
+};
+
+const listReceivables = async () => {
+    try {
+
+        let response;
+        response = await fetch(`/list_receivables_user/${IdUrl}`); 
+        const data = await response.json();
+        let content = ``;
+        data.receivables.forEach((receivable) => {
+            if (receivable.active) {
+                content += `
+                <tr>
+                    <td>${receivable.number}</td>
+                    <td>${receivable.client}</td>
+                    <td>${receivable.total} $</td>
+                    <td type="date">${receivable.date}</td>
+                    <td>${receivable.days}</td>
+                `;
+                content += `
+                </tr>
+                `;
+            }
+        });
+        tableBody_orders.innerHTML = content;
+        $('#datatable-orders').DataTable({
+            "order": [[ 3, "desc" ]], //or asc 
+            "columnDefs" : [{"targets":3, "type":"date"}],
+        }).draw();
+    } catch (ex) {
+        alert(ex);
+    }
+};
+
+const listReceivablesAll = async () => {
+    try {
+
+        let response;
+        response = await fetch(`/list_receivables_all/`); 
+        const data = await response.json();
+        let content = ``;
+        data.receivables.forEach((receivable) => {
+            if (receivable.active) {
+                content += `
+                <tr>
+                    <td>${receivable.number}</td>
+                    <td>${receivable.seller}</td>
+                    <td>${receivable.client}</td>
+                    <td>${receivable.total} $</td>
+                    <td type="date">${receivable.date}</td>
+                    <td>${receivable.days}</td>
+                `;
+                content += `
+                </tr>
+                `;
+            }
+        });
+        tableBody_orders.innerHTML = content;
+        $('#datatable-orders').DataTable({
+            "order": [[ 4, "desc" ]], //or asc 
+            "columnDefs" : [{"targets":4, "type":"date"}],
+        }).draw();
     } catch (ex) {
         alert(ex);
     }
