@@ -174,7 +174,7 @@ a {
 
 @media (max-width: 767px) and (orientation: landscape) {
     #wrapper.toggled #sidebar-wrapper {
-        margin-left: -38%;
+        margin-left: -17rem;
     }
     .input-extend {
         width: 100%;
@@ -209,7 +209,7 @@ a {
     }
 
     #wrapper.toggled #sidebar-wrapper {
-        margin-left: -22%;
+        margin-left: -17rem;
     }
     .dataTables_filter, .dataTables_length, .dataTables_wrapper, .dataTables_paginate {
         .col-sm-12, .col-md-6 {

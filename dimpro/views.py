@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.conf import settings
+from .management.commands.updatedb import encodeduser
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.staticfiles import finders
@@ -1200,6 +1201,17 @@ def availableProducts():
 @only_for('signedin')
 def inventory(request):
     if request.user.is_staff:
+        if request.method == 'POST':
+            headers = {"accept": "application/json",
+                "authorization": f"Basic {encodeduser()}"}
+            url = f"https://api.alegra.com/api/v1/items"
+            
+            name = request.POST.get('name')
+            description = request.POST.get('description')
+            reference = request.POST.get('reference')
+            price = request.POST.get('price')
+
+
         return render(request, 'dimpro/staff/staff_inventory.html', {'n_items': len(availableProducts())})
     return render(request, 'dimpro/client/client_inventory.html', {'n_items': len(availableProducts())})
 
